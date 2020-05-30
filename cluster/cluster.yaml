@@ -4,13 +4,20 @@ kind: ClusterConfig
 
 
 metadata:
-  name: flux-helm-op
+  name: javier
   region: us-east-1
 
 nodeGroups:
   - name: ng-1
-    instanceType: m5.large
-    desiredCapacity: 2
+    instancesDistribution:
+      maxPrice: 0.017
+      instanceTypes: ["m4.xlarge"] # At least one instance type should be specified
+      onDemandBaseCapacity: 0
+      onDemandPercentageAboveBaseCapacity: 50
+      spotInstancePools: 2
+    minSize: 2
+    desiredCapacity: 3
+    maxSize: 4
     iam:
       withAddonPolicies:
         imageBuilder: true
@@ -40,6 +47,7 @@ iam:
 git:
   repo:
     url: "git@github.com:jmatias/eks-sandbox.git"
+    email: javier.l.matias@gmail.com
     branch: master
     fluxPath: "flux/"
   operator:
