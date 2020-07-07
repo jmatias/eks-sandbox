@@ -1,0 +1,157 @@
+---
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: unleash
+  namespace: unleash
+  annotations:
+    fluxcd.io/automated: 'true'
+    filter.fluxcd.io/chart-image: "semver: > 0.1"
+
+
+spec:
+  releaseName: unleash
+  helmVersion: v3
+  chart:
+    repository: http://chart-museum-chartmuseum.chart-museum
+    name: unleash
+    version: 0.5.25
+  timeout: 300
+  wait: true
+  rollback:
+    timeout: 300
+    enable: true
+    retry: true
+    wait: true
+    maxRetries: 0
+  values:
+    image:
+      repository: jmatiastw/unleash
+      tag: 0.2.9
+      imagePullPolicy: IfNotPresent
+
+    serviceMonitor:
+      enabled: true
+
+    headerBackgroundColor: '#1e88e5'
+    posgresqlExistingSecret:
+      name: unleash-superuser
+      usernameKey: pg_su_username
+      passwordKey: pg_su_password
+
+    resources:
+      requests:
+        cpu: 32m
+        memory: 32Mi
+
+      limits:
+        cpu: 96m
+        memory: 96Mi
+
+
+    replicaCount: 3
+
+    postgresql:
+      database: unleash
+      url: stolon-proxy.unleash
+
+    ingress:
+      enabled: true
+      annotations:
+        kubernetes.io/ingress.class: nginx
+      host: unleash.javiermatias.net
+      path: /
+
+
+    service:
+      type: ClusterIP
+      port: 80
+---
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: stolon
+  namespace: unleash
+  annotations:
+    fluxcd.io/automated: 'true'
+
+spec:
+  releaseName: stolon
+  helmVersion: v3
+  chart:
+    repository: http://chart-museum-chartmuseum.chart-museum
+    name: stolon
+    version: 1.6.3
+  timeout: 300
+  wait: true
+  rollback:
+    timeout: 300
+    enable: true
+    retry: true
+    wait: true
+    maxRetries: 0
+  values:
+    image:
+      repository: sorintlab/stolon
+      tag: v0.16.0-pg10
+      pullPolicy: IfNotPresent
+
+
+    initdbScripts:
+      create_script.sh: |
+        #!/bin/sh
+        env | sort
+        createdb unleash
+
+    superuserSecret:
+      name: unleash-superuser
+    replicationSecret:
+      name: unleash-replication
+
+
+    sentinel:
+      replicaCount: 3
+
+      resources:
+        requests:
+          cpu: 32m
+          memory: 32Mi
+
+        limits:
+          cpu: 96m
+          memory: 96Mi
+
+      podDisruptionBudget:
+        maxUnavailable: 1
+
+    proxy:
+      replicaCount: 3
+
+      resources:
+        requests:
+          cpu: 32m
+          memory: 32Mi
+
+        limits:
+          cpu: 96m
+          memory: 96Mi
+
+
+      podDisruptionBudget:
+        maxUnavailable: 1
+
+    keeper:
+
+      replicaCount: 3
+
+      resources:
+        requests:
+          cpu: 32m
+          memory: 32Mi
+
+        limits:
+          cpu: 96m
+          memory: 96Mi
+
+      podDisruptionBudget:
+        maxUnavailable: 1

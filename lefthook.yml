@@ -1,0 +1,4 @@
+pre-commit:
+  commands:
+    check-secrets:
+      run: devcli secret check ~/secret {staged_files}

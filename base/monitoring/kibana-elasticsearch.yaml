@@ -1,0 +1,112 @@
+---
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  annotations:
+    fluxcd.io/automated: 'true'
+    filter.fluxcd.io/chart-image: "semver: >=7.0 <8.0"
+    tag.fluxcd.io/chart-image: imageTag
+    repository.fluxcd.io/chart-image: image
+  namespace: monitoring
+  name: elasticsearch
+spec:
+  releaseName: elasticsearch
+  chart:
+    repository: https://helm.elastic.co
+    name: elasticsearch
+    version: 7.7.1
+  rollback:
+    enable: true
+    retry: true
+    maxRetries: 0
+    disableHooks: true
+    timeout: 300
+    force: true
+    wait: true
+  wait: true
+  timeout: 300
+  forceUpgrade: true
+  helmVersion: v3
+  values:
+
+    image: "docker.elastic.co/elasticsearch/elasticsearch"
+    imageTag: "7.8.0"
+
+    volumeClaimTemplate:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 100Gi
+    replicas: 4
+    resources:
+      requests:
+        cpu: 200m
+        memory: 2000Mi
+      limits:
+        cpu: 600m
+        memory: 3500Mi
+    ingress:
+      enabled: true
+      annotations:
+        kubernetes.io/ingress.class: nginx
+        nginx.ingress.kubernetes.io/affinity: "cookie"
+        nginx.ingress.kubernetes.io/session-cookie-expires: "86400"
+        nginx.ingress.kubernetes.io/session-cookie-max-age: "86400"
+        nginx.ingress.kubernetes.io/session-cookie-name: "elasticsearch"
+        nginx.ingress.kubernetes.io/affinity-mode: persistent
+      path: /
+      hosts:
+      - elasticsearch.javiermatias.net
+---
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  annotations:
+    fluxcd.io/automated: 'true'
+    filter.fluxcd.io/chart-image: "semver: >=7.0 <8.0"
+    tag.fluxcd.io/chart-image: imageTag
+    repository.fluxcd.io/chart-image: image
+  name: kibana
+  namespace: monitoring
+spec:
+  releaseName: kibana
+  helmVersion: v3
+  chart:
+    repository: https://helm.elastic.co
+    name: kibana
+    version: 7.7.0
+  timeout: 600
+  rollback:
+    timeout: 600
+    enable: true
+    force: true
+  wait: true
+  forceUpgrade: true
+  values:
+
+    image: "docker.elastic.co/kibana/kibana"
+    imageTag: "7.8.0"
+
+    ingress:
+      enabled: true
+      annotations:
+        kubernetes.io/ingress.class: nginx
+        nginx.ingress.kubernetes.io/affinity: "cookie"
+        nginx.ingress.kubernetes.io/session-cookie-expires: "86400"
+        nginx.ingress.kubernetes.io/session-cookie-max-age: "86400"
+        nginx.ingress.kubernetes.io/session-cookie-name: "kibana"
+        nginx.ingress.kubernetes.io/affinity-mode: persistent
+        nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+        service.beta.kubernetes.io/aws-load-balancer-ssl-ports: https
+      path: /
+      hosts:
+      - kibana.javiermatias.net
+    replicas: 2
+    resources:
+      requests:
+        cpu: 200m
+        memory: 1000Mi
+      limits:
+        cpu: 600m
+        memory: 1500Mi
+

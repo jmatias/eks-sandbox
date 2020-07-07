@@ -1,0 +1,286 @@
+---
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: prom-operator
+  namespace: monitoring
+  annotations:
+    fluxcd.io/automated: 'true'
+
+    repository.fluxcd.io/prometheus: prometheus.prometheusSpec.image.repository
+    tag.fluxcd.io/prometheus: prometheus.prometheusSpec.image.tag
+    filter.fluxcd.io/prometheus: "semver: >= 2.0"
+    filter.fluxcd.io/grafana: "semver: >=7.0"
+    filter.fluxcd.io/kube-state-metrics: "semver: >=1.9"
+    filter.fluxcd.io/prometheus-node-exporter: "semver: >=1.0"
+
+spec:
+  releaseName: prom-operator
+  chart:
+    repository: https://kubernetes-charts.storage.googleapis.com
+    name: prometheus-operator
+    version: 8.14.0
+  rollback:
+    enable: true
+    retry: true
+    maxRetries: 3
+    timeout: 600
+    force: true
+    wait: true
+  wait: true
+  timeout: 600
+  forceUpgrade: false
+  helmVersion: v3
+
+  values:
+
+    coreDns:
+      service:
+        selector:
+          k8s-app: kube-dns
+    # Not monitoring etcd, kube-scheduler, or kube-controller-manager because it is managed by EKS
+    defaultRules:
+      rules:
+        etcd: false
+        kubeScheduler: false
+    kubeControllerManager:
+      enabled: false
+    kubeEtcd:
+      enabled: false
+    kubeScheduler:
+      enabled: false
+
+    logLevel: debug
+    prometheus:
+
+      podDisruptionBudget:
+        enabled: true
+        maxUnavailable: 1
+        minAvailable:
+
+      serviceAccount:
+        create: false
+        name: "prometheus-sa"
+
+      service:
+        sessionAffinity: "ClientIP"
+        annotations:
+          service.beta.kubernetes.io/aws-load-balancer-ssl-ports: web
+          service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
+        additionalPorts:
+        - name: grpc
+          port: 10901
+          targetPort: grpc
+      ingress:
+        enabled: true
+        annotations:
+          kubernetes.io/ingress.class: nginx
+          nginx.ingress.kubernetes.io/affinity: "cookie"
+          nginx.ingress.kubernetes.io/session-cookie-expires: "86400"
+          nginx.ingress.kubernetes.io/session-cookie-max-age: "86400"
+          nginx.ingress.kubernetes.io/session-cookie-name: "prometheus"
+          nginx.ingress.kubernetes.io/affinity-mode: persistent
+          nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+        path: /
+        hosts:
+        - prometheus.javiermatias.net
+
+      servicePerReplica:
+        enabled: true
+        port: 10901
+        targetPort: grpc
+
+      prometheusSpec:
+
+        retention: 30d
+        replicaExternalLabelName: replica
+
+        thanos:
+          version: v0.12.2
+          objectStorageConfig:
+            key: thanos.yaml
+            name: thanos-objstore-config
+          resources:
+            requests:
+              cpu: 128m
+              memory: 128Mi
+            limits:
+              cpu: 256m
+              memory: 256Mi
+
+
+
+        logFormat: json
+        logLevel: info
+        resources:
+          requests:
+            cpu: 256m
+            memory: 2Gi
+          limits:
+            cpu: 512m
+            memory: 4Gi
+        image:
+          repository: quay.io/prometheus/prometheus
+          tag: v2.19.1
+        enableAdminAPI: true
+        storageSpec:
+          volumeClaimTemplate:
+            spec:
+              accessModes: ["ReadWriteOnce"]
+              resources:
+                requests:
+                  storage: 10Gi
+        replicas: 2
+        serviceMonitorSelectorNilUsesHelmValues: false
+        additionalScrapeConfigs:
+
+
+
+
+    prometheusOperator:
+      logFormat: json
+
+      createCustomResource: false
+
+
+
+    alertmanager:
+
+
+      alertmanagerSpec:
+        logFormat: json
+        replicas: 1
+
+        resources:
+          requests:
+            cpu: 32m
+          limits:
+            cpu: 64m
+
+      service:
+        annotations:
+          service.beta.kubernetes.io/aws-load-balancer-ssl-ports: http
+      ingress:
+        enabled: true
+        annotations:
+          kubernetes.io/ingress.class: nginx
+          nginx.ingress.kubernetes.io/affinity: "cookie"
+          nginx.ingress.kubernetes.io/session-cookie-expires: "86400"
+          nginx.ingress.kubernetes.io/session-cookie-max-age: "86400"
+          nginx.ingress.kubernetes.io/session-cookie-name: "alertmanager"
+          nginx.ingress.kubernetes.io/affinity-mode: persistent
+          nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+        path: /
+        hosts:
+        - alertmanager.javiermatias.net
+
+    grafana:
+      sidecar:
+        datasources:
+          enabled: true
+          defaultDatasourceEnabled: false
+
+      image:
+        repository: grafana/grafana
+        tag: 7.0.4
+        pullPolicy: IfNotPresent
+      podDisruptionBudget:
+        minAvailable: 1
+      grafana.ini:
+        users:
+          viewers_can_edit: true
+        auth:
+          disable_login_form: false
+          disable_signout_menu: false
+        auth.anonymous:
+          enabled: true
+          org_role: Viewer
+      ingress:
+        enabled: true
+        path: /
+        hosts:
+        - grafana.javiermatias.net
+        annotations:
+          kubernetes.io/ingress.class: nginx
+          nginx.ingress.kubernetes.io/affinity: "cookie"
+          nginx.ingress.kubernetes.io/session-cookie-expires: "86400"
+          nginx.ingress.kubernetes.io/session-cookie-max-age: "86400"
+          nginx.ingress.kubernetes.io/session-cookie-name: "grafana"
+          nginx.ingress.kubernetes.io/affinity-mode: persistent
+          nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+
+      service:
+        annotations:
+          service.beta.kubernetes.io/aws-load-balancer-ssl-ports: service
+          service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
+
+      replicas: 2
+      resources:
+        requests:
+          cpu: 128m
+          memory: 96Mi
+
+        limits:
+          cpu: 256m
+          memory: 512Mi
+
+      plugins:
+      - neocat-cal-heatmap-panel
+      - vonage-status-panel
+      - petrslavotinek-carpetplot-panel
+      - savantly-heatmap-panel
+      - grafana-piechart-panel
+
+      additionalDataSources:
+      - name: Prometheus
+        access: proxy
+        editable: false
+        jsonData:
+          timeInterval: '10s'
+        orgId: 1
+        type: prometheus
+        url: https://prometheus.javiermatias.net
+        version: 1
+        isDefault: true
+      - name: Thanos
+        access: proxy
+        editable: false
+        jsonData:
+          timeInterval: '10s'
+          custom_query_parameters: dedup=true&partial_response=true
+          customQueryParameters: dedup=true&partial_response=true
+        orgId: 1
+        type: prometheus
+        url: https://thanos.javiermatias.net
+        version: 1
+        isDefault: false
+
+
+    nodeExporter:
+      enabled: true
+
+
+    prometheus-node-exporter:
+
+      image:
+        repository: quay.io/prometheus/node-exporter
+        tag: v1.0.1
+        pullPolicy: IfNotPresent
+
+      resources:
+        requests:
+          cpu: 50m
+        limits:
+          cpu: 75m
+
+
+    kube-state-metrics:
+      image:
+        repository: quay.io/coreos/kube-state-metrics
+        tag: v1.9.7
+        pullPolicy: IfNotPresent
+      resources:
+        requests:
+          cpu: 50m
+        limits:
+          cpu: 75m

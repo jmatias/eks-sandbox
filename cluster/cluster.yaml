@@ -2,22 +2,37 @@
 apiVersion: eksctl.io/v1alpha5
 kind: ClusterConfig
 
+git:
+  repo:
+    url: git@github.com:jmatias/eks-sandbox.git
+    email: javier.l.matias@gmail.com
+    branch: master
+    fluxPath: "flux/"
+  operator:
+    namespace: "flux"
+    withHelm: false
+  bootstrapProfile:
+    source: git@github.com:jmatias/eks-quick-start.git
+    revision: master
+
+
+availabilityZones: ["us-east-1a","us-east-1b"]
+
 
 metadata:
   name: javier
   region: us-east-1
 
 nodeGroups:
-  - name: ng-1
+  - name: ng1
     instancesDistribution:
-      maxPrice: 0.017
-      instanceTypes: ["m4.xlarge"] # At least one instance type should be specified
+      instanceTypes: ["r5.large"] # At least one instance type should be specified
       onDemandBaseCapacity: 0
-      onDemandPercentageAboveBaseCapacity: 50
-      spotInstancePools: 2
+      onDemandPercentageAboveBaseCapacity: 0
     minSize: 2
-    desiredCapacity: 3
-    maxSize: 4
+    desiredCapacity: 4
+    maxSize: 6
+    privateNetworking: true
     iam:
       withAddonPolicies:
         imageBuilder: true
@@ -31,25 +46,42 @@ nodeGroups:
         albIngress: true
         xRay: true
         cloudWatch: true
-
+      attachPolicyARNs:
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+        - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+        - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+        - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
 
 iam:
   withOIDC: true
   serviceAccounts:
     - metadata:
+        name: external-secrets-sa
+        namespace: external-secrets
+      attachPolicyARNs:
+        - arn:aws:iam::aws:policy/SecretsManagerReadWrite
+
+    - metadata:
+        name: prometheus-sa
+        namespace: monitoring
+      attachPolicyARNs:
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+
+    - metadata:
+        name: eksctl-sa
+        namespace: monitoring
+      attachPolicyARNs:
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+
+    - metadata:
         name: eksctl-sa
         namespace: kube-system
       attachPolicyARNs:
-        - "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
-        - "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
+        - arn:aws:iam::aws:policy/SecretsManagerReadWrite
 
-
-git:
-  repo:
-    url: "git@github.com:jmatias/eks-sandbox.git"
-    email: javier.l.matias@gmail.com
-    branch: master
-    fluxPath: "flux/"
-  operator:
-    namespace: "flux"
-    withHelm: true
+    - metadata:
+        name: eksctl-sa
+        namespace: chartmuseum
+      attachPolicyARNs:
+        - arn:aws:iam::aws:policy/SecretsManagerReadWrite
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
