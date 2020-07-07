@@ -7,22 +7,20 @@ if [[ -z "${GITHUB_TOKEN}" ]]; then
   exit 1
 fi
 
-
 function getClusterName() {
   clusterName=$(yq .metadata.name - <$SCRIPT_ROOT/cluster/cluster.yaml)
   clusterName=$(echo "$clusterName" | sed -e 's/^"//' -e 's/"$//')
   echo "$clusterName"
 }
 
-function restartDeployment {
+function restartDeployment() {
   namespace=$1
   deploymentName=$2
   kubectl rollout restart deployment -n $namespace $deploymentName
-  kubectl rollout status deployment -n $namespace  $deploymentName
+  kubectl rollout status deployment -n $namespace $deploymentName
 }
 
-
-function waitForDeployment {
+function waitForDeployment() {
   namespace=$1
   deploymentName=$2
 
@@ -42,7 +40,6 @@ else
   eksctl create iamserviceaccount --config-file ${SCRIPT_ROOT}/cluster/cluster.yaml --approve --override-existing-serviceaccounts
   eksctl enable repo --config-file ${SCRIPT_ROOT}/cluster/cluster.yaml
 fi
-
 
 set +e
 kubectl get deployment -n kube-system vpa-updater >/dev/null 2>&1
@@ -65,14 +62,11 @@ waitForDeployment ingress-nginx external-ingress
 set -e
 kubectl rollout status deployment -n ingress-nginx external-ingress-nginx-ingress-controller
 
-
 set +e
 waitForDeployment external-secrets external-secrets
 
 set -e
 kubectl rollout status deployment -n external-secrets external-secrets-kubernetes-external-secrets
-
-
 
 helm upgrade -i helm-operator-chartmuseum fluxcd/helm-operator --set helm.versions=v3 --namespace flux --set workers=40 --set allowNamespace=chartmuseum
 
@@ -87,7 +81,3 @@ kubectl get hr -A | grep -vi NAMESPACE | grep -E '(failed)' | awk '{printf "kube
 restartDeployment "flux" "helm-operator-private"
 
 kubectl get hr -A
-
-
-
-
