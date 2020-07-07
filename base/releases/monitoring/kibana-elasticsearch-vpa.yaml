@@ -1,0 +1,36 @@
+apiVersion: "autoscaling.k8s.io/v1beta2"
+kind: VerticalPodAutoscaler
+metadata:
+  name: elasticsearch-vpa
+  namespace: monitoring
+spec:
+  targetRef:
+    apiVersion: "apps/v1"
+    kind: StatefulSet
+    name: elasticsearch-master
+  resourcePolicy:
+    containerPolicies:
+      - containerName: '*'
+        controlledResources: ["cpu","memory"]
+        minAllowed:
+          cpu: 192m
+
+
+---
+
+apiVersion: "autoscaling.k8s.io/v1beta2"
+kind: VerticalPodAutoscaler
+metadata:
+  name: kibana-vpa
+  namespace: monitoring
+spec:
+  targetRef:
+    apiVersion: "apps/v1"
+    kind: Deployment
+    name: kibana-kibana
+  resourcePolicy:
+    containerPolicies:
+      - containerName: '*'
+        controlledResources: ["cpu","memory"]
+        minAllowed:
+          cpu: 192m

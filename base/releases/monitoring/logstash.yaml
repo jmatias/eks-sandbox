@@ -1,0 +1,140 @@
+---
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  annotations:
+    fluxcd.io/automated: 'true'
+    filter.fluxcd.io/chart-image: "semver: >=7.0 <8.0"
+    tag.fluxcd.io/chart-image: imageTag
+    repository.fluxcd.io/chart-image: image
+
+  name: logstash
+  namespace: monitoring
+spec:
+  releaseName: logstash
+  chart:
+    repository: https://helm.elastic.co
+    name: logstash
+    version: 7.7.1
+  rollback:
+    enable: true
+    retry: true
+    maxRetries: 3
+    timeout: 360
+    force: true
+    wait: true
+  wait: true
+  timeout: 360
+  forceUpgrade: false #This needs to be false for all stateful sets. There is a bug in Helm 3.
+  helmVersion: v3
+  values:
+
+    resources:
+      requests:
+        cpu: 512m
+        memory: 512Mi
+      limits:
+        cpu: 1500m
+        memory: 750Mi
+
+    image: "docker.elastic.co/logstash/logstash"
+    imageTag: "7.8.0"
+
+    persistence:
+      enabled: true
+    replicas: 2
+    service:
+      type: ClusterIP
+      ports:
+      - name: beats
+        port: 5044
+        protocol: TCP
+        targetPort: 5044
+      - name: http
+        port: 8080
+        protocol: TCP
+        targetPort: 8080
+    logstashPipeline:
+      logstash.conf: |
+        input {
+          beats {
+            port => 5044
+          }
+
+        }
+
+        output {
+          elasticsearch {
+            hosts => ["http://elasticsearch-master:9200"]
+            ilm_enabled => true
+          }
+        }
+
+
+        filter {
+
+          if [message] =~ "kubelet" and [input][type] != "container" {
+
+            mutate {add_field => { "logger" => "log" }}
+            grok {
+              match => { "message" => "%{SYSLOGTIMESTAMP} %{HOSTNAME:node_instance} %{WORD}: %{GREEDYDATA:message}" }
+            }
+
+          } else if [container][labels][io_kubernetes_docker_type] == "container" {
+
+            grok {
+              match => { "[kubernetes][node][name]" => "%{HOSTNAME:node_instance}.ec2" }
+              add_field => { "logger" => "container" }
+            }
+          } else if [kubernetes][namespace] == "kuberhealthy" and [message] =~ /(?i)\[[0-9]+m/ {
+
+            mutate {
+              gsub => [
+                "message", "\[[0-9]+m", " "
+              ]
+            }
+
+          }
+
+          if [logger] == "s3" {
+              mutate {
+                remove_field => [ "timestamp" ]
+              }
+          }
+
+          if ([message] =~ /((?i)errors?|(?i)err=|(?i)failed)/ and [message] !~ /err=null/) or [message] =~ /E[0-9]{4}|W[0-9]{4}/ {
+            mutate {
+              add_field => { "error" => true }
+            }
+            mutate {convert => ["error","boolean"]}
+          }
+
+          # not needed
+          if [message] =~ /Request completed successfully/ {
+            drop {}
+          }
+
+
+
+          if ([kubernetes][namespace] == "monitoring" or [kubernetes][namespace] == "kuberhealthy"
+              or  [kubernetes][namespace] == "external-secrets" or  [kubernetes][namespace] == "tekton-pipelines"
+              or [kubernetes][container][name]== "flux-helm-operator" or [kubernetes][container][name]== "flux" )  {
+            json {
+              source => "message"
+              skip_on_invalid_json => true
+              remove_field => ["req","pid",
+                              "logEvent","res","method"]
+            }
+          }
+
+          mutate {
+            remove_field => ["[agent][id]", "[agent][ephemeral_id]","knative"]
+          }
+
+        }
+    logstashConfig:
+      logstash.yml: |-
+        http.host: 0.0.0.0
+        xpack.monitoring.enabled: false
+        xpack.monitoring.elasticsearch.hosts: [ "http://elasticsearch-master:9200" ]
+        log.format: json

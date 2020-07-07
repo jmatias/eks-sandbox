@@ -1,0 +1,36 @@
+---
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: reloader
+  namespace: kube-system
+  annotations:
+    fluxcd.io/automated: 'true'
+
+    repository.fluxcd.io/reloader: reloader.image.name
+    tag.fluxcd.io/reloader: reloader.image.tag
+    filter.fluxcd.io/reloader: "semver: >= 0.0.50"
+
+spec:
+  releaseName: reloader
+  chart:
+    repository: https://stakater.github.io/stakater-charts
+    name: reloader
+    version: 0.0.59
+  timeout: 100
+  forceUpgrade: true
+  helmVersion: v3
+  wait: true
+  rollback:
+    wait: true
+    force: true
+    maxRetries: 3
+    retry: true
+    timeout: 100
+    enable: true
+  values:
+    reloader:
+      image:
+        name: stakater/reloader
+        tag: "v0.0.59"
+        pullPolicy: IfNotPresent

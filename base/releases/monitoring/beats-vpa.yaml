@@ -1,0 +1,14 @@
+apiVersion: "autoscaling.k8s.io/v1beta2"
+kind: VerticalPodAutoscaler
+metadata:
+  name: filebeat-vpa
+  namespace: monitoring
+spec:
+  targetRef:
+    apiVersion: "apps/v1"
+    kind: DaemonSet
+    name: filebeat-filebeat
+  resourcePolicy:
+    containerPolicies:
+      - containerName: '*'
+        controlledResources: ["cpu","memory"]

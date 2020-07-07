@@ -1,0 +1,11 @@
+---
+apiVersion: kubernetes-client.io/v1
+kind: ExternalSecret
+metadata:
+  name: flux-helm-repositories
+  namespace: flux
+secretDescriptor:
+  backendType: secretsManager
+  data:
+    - key: chart-museum/repositories.yaml/dev
+      name: repositories.yaml

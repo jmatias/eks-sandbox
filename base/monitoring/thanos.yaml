@@ -1,0 +1,947 @@
+---
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: thanos
+  namespace: monitoring
+  annotations:
+    fluxcd.io/automated: 'true'
+    filter.fluxcd.io/chart-image: "semver: >= 0.12"
+spec:
+  releaseName: thanos
+  chart:
+    repository: https://charts.bitnami.com/bitnami
+    name: thanos
+    version: 0.5.3
+  rollback:
+    enable: true
+    retry: true
+    maxRetries: 0
+    timeout: 600
+    force: true
+    wait: true
+  wait: true
+  timeout: 600
+  forceUpgrade: false #This needs to be false for all stateful sets. There is a bug in Helm 3.
+  helmVersion: v3
+
+  values:
+    image:
+      registry: quay.io
+      repository: thanos/thanos
+      tag: v0.12.2
+      pullPolicy: IfNotPresent
+
+    clusterDomain: cluster.local
+
+    objstoreConfig:
+      type: S3
+      config:
+        bucket: thanos-javier-dev
+        endpoint: s3.us-east-1.amazonaws.com
+        insecure: false
+        signature_version2: false
+        encrypt_sse: true
+        http_config:
+          idle_conn_timeout: 0s
+
+
+    ## Thanos Querier parameters
+    ##
+    querier:
+      ## Set to true to enable Thanos Querier component
+      ##
+      enabled: true
+
+      ## Log level
+      ##
+      logLevel: debug
+
+      serviceAccount:
+        annotations: {}
+
+      replicaLabel: replica
+
+      dnsDiscovery:
+        enabled: true
+
+      stores:
+        - prom-operator-prometheus-o-prometheus-0:10901
+        - prom-operator-prometheus-o-prometheus-1:10901
+
+      extraFlags:
+        log.format: json
+
+      replicaCount: 2
+
+      strategyType: RollingUpdate
+
+      ## Affinity for pod assignment
+      ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+      ##
+      affinity: {}
+
+      ## Node labels for pod assignment. Evaluated as a template.
+      ## ref: https://kubernetes.io/docs/user-guide/node-selection/
+      ##
+      nodeSelector: {}
+
+      ## Tolerations for pod assignment. Evaluated as a template.
+      ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+      ##
+      tolerations: {}
+
+      ## Annotations for querier pods
+      ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+      ##
+      podAnnotations: {}
+
+      ## Pod priority
+      ## ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/
+      ##
+      # priorityClassName: ""
+
+      ## K8s Security Context for Thanos Querier pods
+      ## https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+      ##
+      securityContext:
+        enabled: true
+        fsGroup: 1001
+        runAsUser: 1001
+
+      ## Thanos Querier containers' resource requests and limits
+      ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+      ##
+      resources:
+        # We usually recommend not to specify default resources and to leave this as a conscious
+        # choice for the user. This also increases chances charts run on environments with little
+        # resources, such as Minikube. If you do want to specify resources, uncomment the following
+        # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+        requests:
+          cpu: 150m
+          memory: 128Mi
+
+        limits:
+          cpu: 300m
+          memory: 1Gi
+
+
+      ## Thanos Querier pods' liveness and readiness probes. Evaluated as a template.
+      ## ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#container-probes
+      ##
+      livenessProbe:
+        httpGet:
+          path: /-/healthy
+          port: http
+        initialDelaySeconds: 30
+        timeoutSeconds: 30
+        # periodSeconds: 10
+        # successThreshold: 1
+        # failureThreshold: 6
+      readinessProbe:
+        httpGet:
+          path: /-/ready
+          port: http
+        initialDelaySeconds: 30
+        timeoutSeconds: 30
+        # periodSeconds: 10
+        # successThreshold: 1
+        # failureThreshold: 6
+
+      ## Service paramaters
+      ##
+      service:
+        ## Service type
+        ##
+        type: ClusterIP
+        ## Thanos Querier service clusterIP IP
+        ##
+        # clusterIP: None
+        ## HTTP Port
+        ##
+        http:
+          port: 9090
+          ## Specify the nodePort value for the LoadBalancer and NodePort service types.
+          ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport
+          ##
+          # nodePort:
+        ## GRPC Port
+        ##
+        grpc:
+          port: 10901
+          ## Specify the nodePort value for the LoadBalancer and NodePort service types.
+          ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport
+          ##
+          # nodePort:
+        ## Set the LoadBalancer service type to internal only.
+        ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#internal-load-balancer
+        ##
+        # loadBalancerIP:
+        ## Load Balancer sources
+        ## https://kubernetes.io/docs/tasks/access-application-cluster/configure-cloud-provider-firewall/#restrict-access-for-loadbalancer-service
+        ##
+        # loadBalancerSourceRanges:
+        # - 10.10.10.0/24
+        ## Provide any additional annotations which may be required
+        ##
+        annotations: {}
+
+      ## Autoscaling parameters
+      ##
+      autoscaling:
+        enabled: false
+        #  minReplicas: 1
+        #  maxReplicas: 11
+        #  targetCPU: 50
+        #  targetMemory: 50
+
+      ## Querier Pod Disruption Budget configuration
+      ## ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/
+      ##
+      pdb:
+        create: false
+        ## Min number of pods that must still be available after the eviction
+        ##
+        minAvailable: 1
+        ## Max number of pods that can be unavailable after the eviction
+        ##
+        # maxUnavailable: 1
+
+    ## Thanos Bucket Web parameters
+    ##
+    bucketweb:
+      ## Set to true to enable Thanos Bucket Web component
+      ##
+      enabled: false
+
+      ## Log level
+      ##
+      logLevel: info
+
+      ## Provide any additional annotations which may be required
+      ##
+      serviceAccount:
+        annotations: {}
+
+      ## Refresh interval to download metadata from remote storage
+      ##
+      refresh: 30m
+
+      ## Timeout to download metadata from remote storage
+      ##
+      timeout: 5m
+
+      ## Extra Flags to passed to Bucket Web
+      ##
+      extraFlags: {}
+
+      ## Number of Thanos Querier replicas to deploy
+      ##
+      replicaCount: 1
+
+      ## StrategyType, can be set to RollingUpdate or Recreate by default.
+      ##
+      strategyType: RollingUpdate
+
+      ## Affinity for pod assignment
+      ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+      ##
+      affinity: {}
+
+      ## Node labels for pod assignment. Evaluated as a template.
+      ## ref: https://kubernetes.io/docs/user-guide/node-selection/
+      ##
+      nodeSelector: {}
+
+      ## Tolerations for pod assignment. Evaluated as a template.
+      ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+      ##
+      tolerations: {}
+
+      ## Annotations for bucketweb pods
+      ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+      ##
+      podAnnotations: {}
+
+      ## Pod priority
+      ## ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/
+      ##
+      # priorityClassName: ""
+
+      ## K8s Security Context for Thanos Bucket Web pods
+      ## https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+      ##
+      securityContext:
+        enabled: true
+        fsGroup: 1001
+        runAsUser: 1001
+
+      ## Thanos Bucket Web containers' resource requests and limits
+      ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+      ##
+      resources:
+        # We usually recommend not to specify default resources and to leave this as a conscious
+        # choice for the user. This also increases chances charts run on environments with little
+        # resources, such as Minikube. If you do want to specify resources, uncomment the following
+        # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+        limits: {}
+        #   cpu: 100m
+        #   memory: 128Mi
+        requests: {}
+        #   cpu: 100m
+        #   memory: 128Mi
+
+      ## Thanos Bucket Web pods' liveness and readiness probes. Evaluated as a template.
+      ## ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#container-probes
+      ##
+      livenessProbe:
+        httpGet:
+          path: /
+          port: http
+        initialDelaySeconds: 30
+        timeoutSeconds: 30
+        # periodSeconds: 10
+        # successThreshold: 1
+        # failureThreshold: 6
+      readinessProbe:
+        httpGet:
+          path: /
+          port: http
+        initialDelaySeconds: 30
+        timeoutSeconds: 30
+        # periodSeconds: 10
+        # successThreshold: 1
+        # failureThreshold: 6
+
+      ## Service paramaters
+      ##
+      service:
+        ## Service type
+        ##
+        type: ClusterIP
+        ## Thanos Bucket Web service clusterIP IP
+        ##
+        # clusterIP: None
+        ## HTTP Port
+        ##
+        http:
+          port: 8080
+          ## Specify the nodePort value for the LoadBalancer and NodePort service types.
+          ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport
+          ##
+          # nodePort:
+        ## Set the LoadBalancer service type to internal only.
+        ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#internal-load-balancer
+        ##
+        # loadBalancerIP:
+        ## Load Balancer sources
+        ## https://kubernetes.io/docs/tasks/access-application-cluster/configure-cloud-provider-firewall/#restrict-access-for-loadbalancer-service
+        ##
+        # loadBalancerSourceRanges:
+        # - 10.10.10.0/24
+        ## Provide any additional annotations which may be required
+        ##
+        annotations: {}
+
+      ## Bucket Web Pod Disruption Budget configuration
+      ## ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/
+      ##
+      pdb:
+        create: false
+        ## Min number of pods that must still be available after the eviction
+        ##
+        minAvailable: 1
+        ## Max number of pods that can be unavailable after the eviction
+        ##
+        # maxUnavailable: 1
+
+    ## Thanos Compactor parameters
+    ##
+    compactor:
+      ## Set to true to enable Thanos Compactor component
+      ##
+      enabled: true
+
+      ## Log level
+      ##
+      logLevel: info
+
+      ## Provide any additional annotations which may be required
+      ##
+      serviceAccount:
+        annotations: {}
+
+      ## Resolution and Retention flags
+      ##
+      retentionResolutionRaw: 14d
+      retentionResolution5m: 30d
+      retentionResolution1h: 10y
+
+      ## Minimum age of fresh (non-compacted) blocks
+      ## before they are being processed
+      ##
+      consistencyDelay: 30m
+
+      ## Extra Flags to passed to Thanos Compactor
+      ##
+      extraFlags:
+        log.format: json
+
+      ## StrategyType, can be set to RollingUpdate or Recreate by default.
+      ##
+      strategyType: RollingUpdate
+
+      ## Affinity for pod assignment
+      ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+      ##
+      affinity: {}
+
+      ## Node labels for pod assignment. Evaluated as a template.
+      ## ref: https://kubernetes.io/docs/user-guide/node-selection/
+      ##
+      nodeSelector: {}
+
+      ## Tolerations for pod assignment. Evaluated as a template.
+      ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+      ##
+      tolerations: {}
+
+      ## Annotations for compactor pods
+      ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+      ##
+      podAnnotations: {}
+
+      ## Pod priority
+      ## ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/
+      ##
+      # priorityClassName: ""
+
+      ## K8s Security Context for Thanos Compactor pods
+      ## https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+      ##
+      securityContext:
+        enabled: true
+        fsGroup: 1001
+        runAsUser: 1001
+
+      ## Thanos Compactor containers' resource requests and limits
+      ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+      ##
+      resources:
+        # We usually recommend not to specify default resources and to leave this as a conscious
+        # choice for the user. This also increases chances charts run on environments with little
+        # resources, such as Minikube. If you do want to specify resources, uncomment the following
+        # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+        requests:
+          cpu: 64m
+          memory: 128Mi
+        limits:
+          cpu: 256m
+          memory: 512Mi
+
+      ## Thanos Compactor pods' liveness and readiness probes. Evaluated as a template.
+      ## ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#container-probes
+      ##
+      livenessProbe:
+        httpGet:
+          path: /-/healthy
+          port: http
+        initialDelaySeconds: 30
+        timeoutSeconds: 30
+        periodSeconds: 10
+        successThreshold: 1
+        failureThreshold: 6
+      readinessProbe:
+        httpGet:
+          path: /-/ready
+          port: http
+        initialDelaySeconds: 30
+        timeoutSeconds: 30
+        periodSeconds: 10
+        successThreshold: 1
+        failureThreshold: 6
+
+      ## Service paramaters
+      ##
+      service:
+        ## Service type
+        ##
+        type: ClusterIP
+        ## Thanos Compactor service clusterIP IP
+        ##
+        # clusterIP: None
+        ## HTTP Port
+        ##
+        http:
+          port: 9090
+          ## Specify the nodePort value for the LoadBalancer and NodePort service types.
+          ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport
+          ##
+          # nodePort:
+        ## Set the LoadBalancer service type to internal only.
+        ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#internal-load-balancer
+        ##
+        # loadBalancerIP:
+        ## Load Balancer sources
+        ## https://kubernetes.io/docs/tasks/access-application-cluster/configure-cloud-provider-firewall/#restrict-access-for-loadbalancer-service
+        ##
+        # loadBalancerSourceRanges:
+        # - 10.10.10.0/24
+        ## Provide any additional annotations which may be required
+        ##
+        annotations: {}
+
+      ## Persistence paramaters
+      ##
+      persistence:
+        enabled: true
+        ## A manually managed Persistent Volume and Claim
+        ## If defined, PVC must be created manually before volume will be bound
+        ## The value is evaluated as a template
+        ##
+        # existingClaim:
+        ## Persistent Volume Storage Class
+        ## If defined, storageClassName: <storageClass>
+        ## If set to "-", storageClassName: "", which disables dynamic provisioning
+        ## If undefined (the default) or set to null, no storageClassName spec is
+        ## set, choosing the default provisioner.
+        ##
+        # storageClass: "-"
+        ## Persistent Volume Access Mode
+        ##
+        accessModes:
+          - ReadWriteOnce
+        ## Persistent Volume Claim size
+        ##
+        size: 8Gi
+
+    ## Thanos Store Gateway parameters
+    ##
+    storegateway:
+      ## Set to true to enable Thanos Store Gateway component
+      ##
+      enabled: true
+
+      ## Log level
+      ##
+      logLevel: info
+
+      ## Provide any additional annotations which may be required
+      ##
+      serviceAccount:
+        annotations: {}
+
+      ## Extra Flags to passed to Thanos Store Gateway
+      ##
+      extraFlags:
+        log.format: json
+
+      ## Number of Thanos Store Gateway replicas to deploy
+      ##
+      replicaCount: 2
+
+      ## StrategyType, can be set to RollingUpdate or OnDelete by default.
+      ##
+      updateStrategyType: RollingUpdate
+
+      ## Affinity for pod assignment
+      ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+      ##
+      affinity: {}
+
+      ## Node labels for pod assignment. Evaluated as a template.
+      ## ref: https://kubernetes.io/docs/user-guide/node-selection/
+      ##
+      nodeSelector: {}
+
+      ## Tolerations for pod assignment. Evaluated as a template.
+      ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+      ##
+      tolerations: {}
+
+      ## Annotations for storegateway pods
+      ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+      ##
+      podAnnotations: {}
+
+      ## Pod priority
+      ## ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/
+      ##
+      # priorityClassName: ""
+
+      ## K8s Security Context for Thanos Store Gateway pods
+      ## https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+      ##
+      securityContext:
+        enabled: true
+        fsGroup: 1001
+        runAsUser: 1001
+
+      ## Thanos Store Gateway containers' resource requests and limits
+      ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+      ##
+      resources:
+        # We usually recommend not to specify default resources and to leave this as a conscious
+        # choice for the user. This also increases chances charts run on environments with little
+        # resources, such as Minikube. If you do want to specify resources, uncomment the following
+        # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+
+
+        requests:
+          cpu: 64m
+          memory: 128Mi
+        limits:
+          cpu: 256m
+          memory: 512Mi
+
+
+      ## Thanos Store Gateway pods' liveness and readiness probes. Evaluated as a template.
+      ## ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#container-probes
+      ##
+      livenessProbe:
+        httpGet:
+          path: /-/healthy
+          port: http
+        initialDelaySeconds: 30
+        timeoutSeconds: 30
+        # periodSeconds: 10
+        # successThreshold: 1
+        # failureThreshold: 6
+      readinessProbe:
+        httpGet:
+          path: /-/ready
+          port: http
+        initialDelaySeconds: 30
+        timeoutSeconds: 30
+        # periodSeconds: 10
+        # successThreshold: 1
+        # failureThreshold: 6
+
+      ## Service paramaters
+      ##
+      service:
+        ## Service type
+        ##
+        type: ClusterIP
+        ## Thanos Store Gateway service clusterIP IP
+        ##
+        # clusterIP: None
+        ## HTTP Port
+        ##
+        http:
+          port: 9090
+          ## Specify the nodePort value for the LoadBalancer and NodePort service types.
+          ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport
+          ##
+          # nodePort:
+        ## GRPC Port
+        ##
+        grpc:
+          port: 10901
+          ## Specify the nodePort value for the LoadBalancer and NodePort service types.
+          ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport
+          ##
+          # nodePort:
+        ## Set the LoadBalancer service type to internal only.
+        ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#internal-load-balancer
+        ##
+        # loadBalancerIP:
+        ## Load Balancer sources
+        ## https://kubernetes.io/docs/tasks/access-application-cluster/configure-cloud-provider-firewall/#restrict-access-for-loadbalancer-service
+        ##
+        # loadBalancerSourceRanges:
+        # - 10.10.10.0/24
+        ## Provide any additional annotations which may be required
+        ##
+        annotations: {}
+        ## Create additional Headless service
+        ##
+        additionalHeadless: false
+
+      ## Persistence paramaters
+      ##
+      persistence:
+        enabled: true
+        ## A manually managed Persistent Volume and Claim
+        ## If defined, PVC must be created manually before volume will be bound
+        ## The value is evaluated as a template
+        ##
+        # existingClaim:
+        ## Persistent Volume Storage Class
+        ## If defined, storageClassName: <storageClass>
+        ## If set to "-", storageClassName: "", which disables dynamic provisioning
+        ## If undefined (the default) or set to null, no storageClassName spec is
+        ## set, choosing the default provisioner.
+        ##
+        # storageClass: "-"
+        ## Persistent Volume Access Mode
+        ##
+        accessModes:
+          - ReadWriteOnce
+        ## Persistent Volume Claim size
+        ##
+        size: 8Gi
+
+      ## Store Gateway Pod Disruption Budget configuration
+      ## ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/
+      ##
+      pdb:
+        create: false
+        ## Min number of pods that must still be available after the eviction
+        ##
+        minAvailable: 1
+        ## Max number of pods that can be unavailable after the eviction
+        ##
+        # maxUnavailable: 1
+
+    ## Thanos Ruler parameters
+    ##
+    ruler:
+      ## Set to true to enable Thanos Ruler component
+      ##
+      enabled: false
+
+      ## Log level
+      ##
+      logLevel: debug
+
+      ## Provide any additional annotations which may be required
+      ##
+      serviceAccount:
+        annotations: {}
+
+      ## Dinamically configure Querier APIs using DNS discovery
+      ##
+      dnsDiscovery:
+        enabled: true
+
+      ## Alermanager URLs array
+      ##
+      alertmanagers:
+        - https://alertmanager.javiermatias.net
+
+      ## The default evaluation interval to use
+      ##
+      evalInterval: 1m
+
+      ## Used to set the 'ruler_cluster' label
+      ##
+      # clusterName:
+
+      ## Extra Flags to passed to Thanos Ruler
+      ##
+      extraFlags: {}
+
+      ## Ruler Configuration
+      ## Specify content for ruler.yml
+      ##
+      config:
+        groups:
+          - name: uptime
+            rules:
+              - record: down
+                expr: probe_success == bool 0
+              - record: mean_time_to_recovery:1h
+                expr:  (avg(avg_over_time(reliability_down_duration_seconds_sum[1h])) by(exported_instance) / avg(avg_over_time(reliability_down_duration_seconds_count[1h])) by(exported_instance))
+              - record: mean_time_to_recovery:7d
+                expr:  (avg(avg_over_time(reliability_down_duration_seconds_sum[7d])) by(exported_instance) / avg(avg_over_time(reliability_down_duration_seconds_count[7d])) by(exported_instance))
+              - record: mean_time_to_recovery:1d
+                expr:  (avg(avg_over_time(reliability_down_duration_seconds_sum[1d])) by(exported_instance) / avg(avg_over_time(reliability_down_duration_seconds_count[1d])) by(exported_instance))
+              - record: mean_time_to_recovery:28d
+                expr:  (avg(avg_over_time(reliability_down_duration_seconds_sum[28d])) by(exported_instance) / avg(avg_over_time(reliability_down_duration_seconds_count[28d])) by(exported_instance))
+
+      ## ConfigMap with Ruler Configuration
+      ## NOTE: This will override ruler.config
+      ##
+      # existingConfigmap:
+
+      ## Number of Thanos Ruler replicas to deploy
+      ##
+      replicaCount: 1
+
+      ## StrategyType, can be set to RollingUpdate or OnDelete by default.
+      ##
+      updateStrategyType: RollingUpdate
+
+      ## Affinity for pod assignment
+      ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+      ##
+      affinity: {}
+
+      ## Node labels for pod assignment. Evaluated as a template.
+      ## ref: https://kubernetes.io/docs/user-guide/node-selection/
+      ##
+      nodeSelector: {}
+
+      ## Tolerations for pod assignment. Evaluated as a template.
+      ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+      ##
+      tolerations: {}
+
+      ## Annotations for ruler pods
+      ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+      ##
+      podAnnotations: {}
+
+      ## Pod priority
+      ## ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/
+      ##
+      # priorityClassName: ""
+
+      ## K8s Security Context for Thanos Ruler pods
+      ## https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+      ##
+      securityContext:
+        enabled: true
+        fsGroup: 1001
+        runAsUser: 1001
+
+      ## Thanos Ruler containers' resource requests and limits
+      ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+      ##
+      resources:
+        # We usually recommend not to specify default resources and to leave this as a conscious
+        # choice for the user. This also increases chances charts run on environments with little
+        # resources, such as Minikube. If you do want to specify resources, uncomment the following
+        # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+        requests:
+          cpu: 128m
+          memory: 128Mi
+        limits:
+          cpu: 256m
+          memory: 256Mi
+
+      ## Thanos Ruler pods' liveness and readiness probes. Evaluated as a template.
+      ## ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#container-probes
+      ##
+      livenessProbe:
+        httpGet:
+          path: /-/healthy
+          port: http
+        initialDelaySeconds: 30
+        timeoutSeconds: 30
+        # periodSeconds: 10
+        # successThreshold: 1
+        # failureThreshold: 6
+      readinessProbe:
+        httpGet:
+          path: /-/ready
+          port: http
+        initialDelaySeconds: 30
+        timeoutSeconds: 30
+        # periodSeconds: 10
+        # successThreshold: 1
+        # failureThreshold: 6
+
+      ## Service paramaters
+      ##
+      service:
+        ## Service type
+        ##
+        type: ClusterIP
+        ## Thanos Ruler service clusterIP IP
+        ##
+        # clusterIP: None
+        ## HTTP Port
+        ##
+        http:
+          port: 9090
+          ## Specify the nodePort value for the LoadBalancer and NodePort service types.
+          ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport
+          ##
+          # nodePort:
+        ## GRPC Port
+        ##
+        grpc:
+          port: 10901
+          ## Specify the nodePort value for the LoadBalancer and NodePort service types.
+          ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport
+          ##
+          # nodePort:
+        ## Set the LoadBalancer service type to internal only.
+        ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#internal-load-balancer
+        ##
+        # loadBalancerIP:
+        ## Load Balancer sources
+        ## https://kubernetes.io/docs/tasks/access-application-cluster/configure-cloud-provider-firewall/#restrict-access-for-loadbalancer-service
+        ##
+        # loadBalancerSourceRanges:
+        # - 10.10.10.0/24
+        ## Provide any additional annotations which may be required
+        ##
+        annotations: {}
+        ## Create additional Headless service
+        ##
+        additionalHeadless: false
+
+      ## Persistence paramaters
+      ##
+      persistence:
+        enabled: true
+        ## A manually managed Persistent Volume and Claim
+        ## If defined, PVC must be created manually before volume will be bound
+        ## The value is evaluated as a template
+        ##
+        # existingClaim:
+        ## Persistent Volume Storage Class
+        ## If defined, storageClassName: <storageClass>
+        ## If set to "-", storageClassName: "", which disables dynamic provisioning
+        ## If undefined (the default) or set to null, no storageClassName spec is
+        ## set, choosing the default provisioner.
+        ##
+        # storageClass: "-"
+        ## Persistent Volume Access Mode
+        ##
+        accessModes:
+          - ReadWriteOnce
+        ## Persistent Volume Claim size
+        ##
+        size: 8Gi
+
+      ## Ruler Pod Disruption Budget configuration
+      ## ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/
+      ##
+      pdb:
+        create: false
+        ## Min number of pods that must still be available after the eviction
+        ##
+        minAvailable: 1
+        ## Max number of pods that can be unavailable after the eviction
+        ##
+        # maxUnavailable: 1
+
+    ## Prometheus metrics
+    ##
+    metrics:
+      enabled: false
+
+      ## Prometheus Operator ServiceMonitor configuration
+      ##
+      serviceMonitor:
+        enabled: false
+        ## Namespace in which Prometheus is running
+        ##
+        # namespace: monitoring
+
+        ## Interval at which metrics should be scraped.
+        ## ref: https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#endpoint
+        ##
+        # interval: 10s
+
+        ## Timeout after which the scrape is ended
+        ## ref: https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#endpoint
+        ##
+        # scrapeTimeout: 10s
+
+    ## Configure the ingress resource that allows you to access Thanos Querier
+    ## ref: http://kubernetes.io/docs/user-guide/ingress/
+    ##
+    ingress:
+
+      enabled: true
+      certManager: false
+      hostname: thanos.javiermatias.net
+
+      annotations:
+        kubernetes.io/ingress.class: nginx
+---

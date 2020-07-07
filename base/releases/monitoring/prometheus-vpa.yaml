@@ -1,0 +1,64 @@
+
+apiVersion: "autoscaling.k8s.io/v1beta2"
+kind: VerticalPodAutoscaler
+metadata:
+  name: prometheus-vpa
+  namespace: monitoring
+spec:
+  targetRef:
+    apiVersion: "apps/v1"
+    kind: StatefulSet
+    name: prometheus-prom-operator-prometheus-o-prometheus
+  resourcePolicy:
+    containerPolicies:
+      - containerName: '*'
+        controlledResources: ["cpu","memory"]
+
+
+---
+apiVersion: "autoscaling.k8s.io/v1beta2"
+kind: VerticalPodAutoscaler
+metadata:
+  name: grafana-vpa
+  namespace: monitoring
+spec:
+  targetRef:
+    apiVersion: "apps/v1"
+    kind: Deployment
+    name: prom-operator-grafana
+  resourcePolicy:
+    containerPolicies:
+      - containerName: '*'
+        controlledResources: ["cpu"]
+
+---
+apiVersion: "autoscaling.k8s.io/v1beta2"
+kind: VerticalPodAutoscaler
+metadata:
+  name: prometheus-node-exporter-vpa
+  namespace: monitoring
+spec:
+  targetRef:
+    apiVersion: "apps/v1"
+    kind: DaemonSet
+    name: prom-operator-prometheus-node-exporter
+  resourcePolicy:
+    containerPolicies:
+      - containerName: '*'
+        controlledResources: ["cpu"]
+
+---
+apiVersion: "autoscaling.k8s.io/v1beta2"
+kind: VerticalPodAutoscaler
+metadata:
+  name: kube-state-metrics-vpa
+  namespace: monitoring
+spec:
+  targetRef:
+    apiVersion: "apps/v1"
+    kind: Deployment
+    name: prom-operator-kube-state-metrics
+  resourcePolicy:
+    containerPolicies:
+      - containerName: '*'
+        controlledResources: ["cpu","memory"]
