@@ -1,4 +1,7 @@
 pre-commit:
+  parallel: true
   commands:
-    check-secrets:
-      run: devcli secret check ~/secret {staged_files}
+    secret-leak-check:
+      tags: secrets
+      files: git ls-files
+      run: ~/devcli/devcli secret check -s ~/secret {files}
