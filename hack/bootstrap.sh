@@ -114,7 +114,6 @@ if [[ -z "${GITHUB_TOKEN}" ]]; then
 fi
 
 
-runGreen kubectl apply -f ${SCRIPT_ROOT}/base/namespaces
 
 createOrUpdateCluster
 
@@ -122,9 +121,9 @@ fetchRepoUpdates
 
 installVerticalPodAutoscaler
 
+runGreen kubectl apply -f ${SCRIPT_ROOT}/base/namespaces
+
 set -e
-
-
 runGreen helm upgrade -i helm-operator-ingress fluxcd/helm-operator --set helm.versions=v3 --namespace flux --set workers=40 --set allowNamespace=ingress-nginx
 runGreen kubectl apply -f ${SCRIPT_ROOT}/base/releases/ingress-nginx
 runRed waitForHelmRelease ingress-nginx external-ingress
