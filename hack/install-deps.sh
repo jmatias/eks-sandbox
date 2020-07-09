@@ -29,7 +29,7 @@ if [ $retVal -ne 0 ]; then
 
   if [[ "$OSTYPE" == "linux-gnu"* ]]; then
 
-    sudo wget "https://github.com/fluxcd/flux/releases/download/1.20.0/fluxctl_windows_amd64" -O /usr/local/bin/fluxctl
+    sudo wget "https://github.com/fluxcd/flux/releases/download/1.20.0/fluxctl_linux_amd64" -O /usr/local/bin/fluxctl
     sudo chmod +x /usr/local/bin/fluxctl
 
   elif [[ "$OSTYPE" == "darwin"* ]]; then
