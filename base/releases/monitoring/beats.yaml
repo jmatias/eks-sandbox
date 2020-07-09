@@ -1,0 +1,83 @@
+---
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  annotations:
+    fluxcd.io/automated: 'true'
+    filter.fluxcd.io/chart-image: "semver: >=7.0 <8.0"
+    tag.fluxcd.io/chart-image: imageTag
+    repository.fluxcd.io/chart-image: image
+  name: filebeat
+  namespace: monitoring
+spec:
+  releaseName: filebeat
+  chart:
+    repository: https://helm.elastic.co
+    name: filebeat
+    version: 7.7.1
+  rollback:
+    enable: true
+    retry: true
+    maxRetries: 3
+    timeout: 180
+    force: true
+    wait: true
+  wait: true
+  timeout: 180
+  forceUpgrade: true
+  helmVersion: v3
+
+  values:
+
+    resources:
+      requests:
+        cpu: 192m
+        memory: 128Mi
+      limits:
+        cpu: 192m
+        memory: 192Mi
+
+    image: "docker.elastic.co/beats/filebeat"
+    imageTag: "7.8.0"
+
+
+    podAnnotations:
+      reloader.stakater.com/auto: "true"
+
+
+    filebeatConfig:
+      filebeat.yml: |
+        filebeat.inputs:
+          - type: container
+            paths:
+              - /var/lib/docker/containers/*/*.log
+          - type: log
+            paths:
+              - /usr/log/messages
+              - /usr/log/*.log
+            fields:
+                type: syslog
+
+
+        processors:
+          - add_kubernetes_metadata:
+
+
+        output.logstash:
+          enabled: true
+          host: '${NODE_NAME}'
+          hosts: '${ELASTICSEARCH_HOSTS:logstash-logstash:5044}'
+
+        output.elasticsearch:
+          enabled: false
+
+        filebeat.modules:
+          syslog:
+            enabled: true
+
+        logging.json: true
+        logging.metrics.enabled: false
+
+    tolerations:
+    - effect: NoSchedule
+      operator: Exists

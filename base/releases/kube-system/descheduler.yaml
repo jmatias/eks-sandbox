@@ -1,0 +1,70 @@
+---
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: descheduler
+  namespace: kube-system
+  annotations:
+    fluxcd.io/automated: 'true'
+spec:
+  releaseName: descheduler
+  chart:
+    repository: https://raw.githubusercontent.com/komljen/helm-charts/master/charts
+    name: descheduler
+    version: 0.2.1
+  rollback:
+    enable: true
+    retry: true
+    maxRetries: 0
+    timeout: 180
+    force: true
+    wait: true
+  wait: true
+  timeout: 180
+  values:
+
+
+    image:
+      repository: us.gcr.io/k8s-artifacts-prod/descheduler/descheduler
+      tag: v0.18.0
+      pullPolicy: IfNotPresent
+
+    schedule: "*/5 * * * *"
+
+    cmdOptions:
+      v: 4
+      max-pods-to-evict-per-node: 10
+
+    deschedulerPolicy:
+      strategies:
+        RemoveDuplicates:
+          enabled: true
+        LowNodeUtilization:
+          enabled: true
+          params:
+            nodeResourceUtilizationThresholds:
+              thresholds:
+                cpu: 50
+                memory: 50
+                pods: 50
+              targetThresholds:
+                cpu: 75
+                memory: 75
+                pods: 75
+        RemovePodsViolatingInterPodAntiAffinity:
+          enabled: true
+        RemovePodsViolatingNodeAffinity:
+          enabled: true
+          params:
+            nodeAffinityType:
+              - requiredDuringSchedulingIgnoredDuringExecution
+        RemovePodsViolatingNodeTaints:
+          enabled: true
+
+
+    rbac:
+      create: false
+
+    serviceAccount:
+      create: false
+      name: eksctl-sa
