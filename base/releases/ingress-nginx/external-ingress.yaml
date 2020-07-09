@@ -33,7 +33,7 @@ spec:
       name: controller
       image:
         repository: quay.io/kubernetes-ingress-controller/nginx-ingress-controller
-        tag: "0.32.0"
+        tag: "0.33.0"
         pullPolicy: IfNotPresent
 
       # Configures the ports the nginx-controller listens on
