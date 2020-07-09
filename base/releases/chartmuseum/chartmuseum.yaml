@@ -68,7 +68,7 @@ spec:
         # storage backend, can be one of: local, alibaba, amazon, google, microsoft, oracle
         STORAGE: amazon
         # s3 bucket to store charts for amazon storage backend
-        STORAGE_AMAZON_BUCKET: chartmuseum-backend
+        STORAGE_AMAZON_BUCKET: tw.chartmuseum-backend
         # prefix to store charts for amazon storage backend
         STORAGE_AMAZON_PREFIX:
         # region of s3 bucket to store charts
