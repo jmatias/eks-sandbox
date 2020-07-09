@@ -8,7 +8,7 @@ metadata:
     fluxcd.io/automated: 'true'
 spec:
   helmVersion: v3
-  releaseName: chart-museum
+  releaseName: chartmuseum
   chart:
     repository: https://kubernetes-charts.storage.googleapis.com
     name: chartmuseum
