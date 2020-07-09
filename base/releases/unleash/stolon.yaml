@@ -1,0 +1,97 @@
+---
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: stolon
+  namespace: unleash
+  annotations:
+    fluxcd.io/automated: 'true'
+
+spec:
+  releaseName: stolon
+  helmVersion: v3
+  chart:
+    repository: https://raw.githubusercontent.com/jmatias/unleash-deployment/master
+    name: stolon
+    version: 1.6.3
+  timeout: 300
+  wait: true
+  rollback:
+    timeout: 300
+    enable: true
+    retry: true
+    wait: true
+    maxRetries: 0
+  values:
+    image:
+      repository: sorintlab/stolon
+      tag: v0.16.0-pg10
+      pullPolicy: IfNotPresent
+
+
+    persistence:
+      enabled: true
+      storageClassName: ""
+      accessModes:
+        - ReadWriteOnce
+      size: 5Gi
+
+
+    initdbScripts:
+      create_script.sh: |
+        #!/bin/sh
+        env | sort
+        createdb unleash
+
+    superuserSecret:
+      name: unleash-superuser
+    replicationSecret:
+      name: unleash-replication
+
+
+    sentinel:
+      replicaCount: 3
+
+      resources:
+        requests:
+          cpu: 32m
+          memory: 32Mi
+
+        limits:
+          cpu: 96m
+          memory: 96Mi
+
+      podDisruptionBudget:
+        maxUnavailable: 1
+
+    proxy:
+      replicaCount: 3
+
+      resources:
+        requests:
+          cpu: 32m
+          memory: 32Mi
+
+        limits:
+          cpu: 96m
+          memory: 96Mi
+
+
+      podDisruptionBudget:
+        maxUnavailable: 1
+
+    keeper:
+
+      replicaCount: 3
+
+      resources:
+        requests:
+          cpu: 32m
+          memory: 32Mi
+
+        limits:
+          cpu: 96m
+          memory: 96Mi
+
+      podDisruptionBudget:
+        maxUnavailable: 1
