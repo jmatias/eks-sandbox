@@ -56,7 +56,7 @@ spec:
         nginx.ingress.kubernetes.io/affinity-mode: persistent
       path: /
       hosts:
-      - elasticsearch.javier.net
+      - elasticsearch.javiermatias.net
 ---
 apiVersion: helm.fluxcd.io/v1
 kind: HelmRelease
