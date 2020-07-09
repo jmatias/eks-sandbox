@@ -121,7 +121,7 @@ spec:
             memory: 4Gi
         image:
           repository: quay.io/prometheus/prometheus
-          tag: v2.19.1
+          tag: v2.19.2
         enableAdminAPI: true
         storageSpec:
           volumeClaimTemplate:
@@ -182,7 +182,7 @@ spec:
 
       image:
         repository: grafana/grafana
-        tag: 7.0.4
+        tag: 7.0.5
         pullPolicy: IfNotPresent
       podDisruptionBudget:
         minAvailable: 1
