@@ -5,10 +5,13 @@ SCRIPT_ROOT=$(dirname "${BASH_SOURCE}")/..
 $SCRIPT_ROOT/hack/configure.sh
 
 
-red='\033[91m'
-green='\033[0;32m'
+red='\033[38;5;29m'
+green='\033[38;5;119m'
+gray='\033[38;5;245m'
+
 purple='\033[0;35m'
 coloroff='\033[0m'
+
 
 function getClusterName() {
   clusterName=$(yq .metadata.name - <$SCRIPT_ROOT/cluster/cluster.yaml)
@@ -71,6 +74,14 @@ function runRed {
   printf "${coloroff}"
 }
 
+function runGray {
+  printf "${gray}"
+  eval $* | while read line; do
+      echo $line
+  done
+  printf "${coloroff}"
+}
+
 function installVerticalPodAutoscaler() {
   set +e
   kubectl get deployment -n kube-system vpa-updater >/dev/null 2>&1
@@ -121,25 +132,25 @@ fetchRepoUpdates
 
 installVerticalPodAutoscaler
 
-runGreen kubectl apply -f ${SCRIPT_ROOT}/base/namespaces
+runGray kubectl apply -f ${SCRIPT_ROOT}/base/namespaces
 
 set -e
-runGreen helm upgrade -i helm-operator-ingress fluxcd/helm-operator --set helm.versions=v3 --namespace flux --set workers=40 --set allowNamespace=ingress-nginx
-runGreen kubectl apply -f ${SCRIPT_ROOT}/base/releases/ingress-nginx
+runGray helm upgrade -i helm-operator-ingress fluxcd/helm-operator --set helm.versions=v3 --namespace flux --set workers=40 --set allowNamespace=ingress-nginx
+runGray kubectl apply -f ${SCRIPT_ROOT}/base/releases/ingress-nginx
 runRed waitForHelmRelease ingress-nginx external-ingress
 runRed waitForDeployment ingress-nginx external-ingress-nginx-ingress-controller
 
-runGreen helm upgrade -i helm-operator-secrets fluxcd/helm-operator --set helm.versions=v3 --namespace flux --set workers=40 --set allowNamespace=external-secrets
-runGreen kubectl apply -f ${SCRIPT_ROOT}/base/releases/external-secrets
+runGray helm upgrade -i helm-operator-secrets fluxcd/helm-operator --set helm.versions=v3 --namespace flux --set workers=40 --set allowNamespace=external-secrets
+runGray kubectl apply -f ${SCRIPT_ROOT}/base/releases/external-secrets
 runRed waitForHelmRelease external-secrets external-secrets
 runRed waitForDeployment external-secrets external-secrets-kubernetes-external-secrets
 
-runGreen helm upgrade -i helm-operator-chartmuseum fluxcd/helm-operator --set helm.versions=v3 --namespace flux --set workers=40 --set allowNamespace=chartmuseum
-runGreen kubectl apply -f ${SCRIPT_ROOT}/base/releases/chartmuseum
+runGray helm upgrade -i helm-operator-chartmuseum fluxcd/helm-operator --set helm.versions=v3 --namespace flux --set workers=40 --set allowNamespace=chartmuseum
+runGray kubectl apply -f ${SCRIPT_ROOT}/base/releases/chartmuseum
 runRed waitForHelmRelease chartmuseum chartmuseum
 runRed waitForDeployment chartmuseum chartmuseum-chartmuseum
 
-helm delete -n flux helm-operator-chart-museum
+helm delete -n flux helm-operator-chartmuseum
 helm delete -n flux helm-operator-secrets
 helm delete -n flux helm-operator-ingress
 
