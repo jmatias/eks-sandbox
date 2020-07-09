@@ -138,8 +138,6 @@ installVerticalPodAutoscaler
 runGray kubectl apply -f ${SCRIPT_ROOT}/base/namespaces
 
 set -e
-fluxctl sync --k8s-fwd-ns flux
-
 runGray helm upgrade -i helm-operator-ingress fluxcd/helm-operator --set helm.versions=v3 --namespace flux --set workers=40 --set allowNamespace=ingress-nginx
 runGray kubectl apply -f ${SCRIPT_ROOT}/base/releases/ingress-nginx
 runRed waitForHelmRelease ingress-nginx external-ingress
