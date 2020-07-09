@@ -1,0 +1,65 @@
+apiVersion: "autoscaling.k8s.io/v1beta2"
+kind: VerticalPodAutoscaler
+metadata:
+  name: unleash-vpa
+  namespace: unleash
+spec:
+  targetRef:
+    apiVersion: "apps/v1"
+    kind: Deployment
+    name: unleash
+  resourcePolicy:
+    containerPolicies:
+      - containerName: '*'
+        controlledResources: ["cpu"]
+        minAllowed:
+          cpu: 32m
+
+---
+apiVersion: "autoscaling.k8s.io/v1beta2"
+kind: VerticalPodAutoscaler
+metadata:
+  name: stolon-proxy-vpa
+  namespace: unleash
+spec:
+  targetRef:
+    apiVersion: "apps/v1"
+    kind: Deployment
+    name: stolon-proxy
+  resourcePolicy:
+    containerPolicies:
+      - containerName: '*'
+        controlledResources: ["cpu"]
+---
+apiVersion: "autoscaling.k8s.io/v1beta2"
+kind: VerticalPodAutoscaler
+metadata:
+  name: stolon-sentinel-vpa
+  namespace: unleash
+spec:
+  targetRef:
+    apiVersion: "apps/v1"
+    kind: Deployment
+    name: stolon-sentinel
+  resourcePolicy:
+    containerPolicies:
+      - containerName: '*'
+        controlledResources: ["cpu"]
+
+
+---
+apiVersion: "autoscaling.k8s.io/v1beta2"
+kind: VerticalPodAutoscaler
+metadata:
+  name: stolon-keeper-vpa
+  namespace: unleash
+spec:
+  targetRef:
+    apiVersion: "apps/v1"
+    kind: StatefulSet
+    name: stolon-keeper
+  resourcePolicy:
+    containerPolicies:
+      - containerName: '*'
+        controlledResources: ["cpu"]
+
