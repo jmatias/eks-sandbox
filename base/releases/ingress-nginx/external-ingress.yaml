@@ -251,7 +251,7 @@ spec:
         enabled: true
 
         annotations:
-          service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "arn:aws:acm:us-east-1:745892955196:certificate/fce0a801-2148-43e8-a57b-2d38d9ff6e5f"
+          service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "arn:aws:acm:us-east-1:253937315114:certificate/33d8940c-9c66-4481-978a-e122e612470b"
           service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
           service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: '60'
           service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: 'true'
