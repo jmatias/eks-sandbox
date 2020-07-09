@@ -1,0 +1,14 @@
+---
+
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: chartmuseum
+  labels:
+    app: chartmuseum
+  namespace: chartmuseum
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: chartmuseum
