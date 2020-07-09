@@ -20,7 +20,7 @@ availabilityZones: ["us-east-1a","us-east-1b"]
 
 
 metadata:
-  name: javier
+  name: demo
   region: us-east-1
 
 nodeGroups:
