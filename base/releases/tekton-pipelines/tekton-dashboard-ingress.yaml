@@ -9,7 +9,7 @@ metadata:
   namespace: tekton-pipelines
 spec:
   rules:
-    - host: tekton-dashboard.javiermatias.net
+    - host: tekton-dashboard.ekssandbox-tw.com
       http:
         paths:
           - backend:

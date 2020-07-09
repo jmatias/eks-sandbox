@@ -326,7 +326,7 @@ metadata:
   namespace: kube-system
 spec:
   rules:
-  - host: dashboard.javiermatias.net
+  - host: dashboard.ekssandbox-tw.com
     http:
       paths:
       - path: /

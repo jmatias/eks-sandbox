@@ -83,7 +83,7 @@ spec:
           nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
         path: /
         hosts:
-        - prometheus.javiermatias.net
+        - prometheus.ekssandbox-tw.com
 
       servicePerReplica:
         enabled: true
@@ -172,7 +172,7 @@ spec:
           nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
         path: /
         hosts:
-        - alertmanager.javiermatias.net
+        - alertmanager.ekssandbox-tw.com
 
     grafana:
       sidecar:
@@ -199,7 +199,7 @@ spec:
         enabled: true
         path: /
         hosts:
-        - grafana.javiermatias.net
+        - grafana.ekssandbox-tw.com
         annotations:
           kubernetes.io/ingress.class: nginx
           nginx.ingress.kubernetes.io/affinity: "cookie"
@@ -239,7 +239,7 @@ spec:
           timeInterval: '10s'
         orgId: 1
         type: prometheus
-        url: https://prometheus.javiermatias.net
+        url: https://prometheus.ekssandbox-tw.com
         version: 1
         isDefault: true
       - name: Thanos
@@ -251,7 +251,7 @@ spec:
           customQueryParameters: dedup=true&partial_response=true
         orgId: 1
         type: prometheus
-        url: https://thanos.javiermatias.net
+        url: https://thanos.ekssandbox-tw.com
         version: 1
         isDefault: false
 

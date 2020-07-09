@@ -56,7 +56,7 @@ spec:
         nginx.ingress.kubernetes.io/affinity-mode: persistent
       path: /
       hosts:
-      - elasticsearch.javiermatias.net
+      - elasticsearch.ekssandbox-tw.com
 ---
 apiVersion: helm.fluxcd.io/v1
 kind: HelmRelease
@@ -100,7 +100,7 @@ spec:
         service.beta.kubernetes.io/aws-load-balancer-ssl-ports: https
       path: /
       hosts:
-      - kibana.javiermatias.net
+      - kibana.ekssandbox-tw.com
     replicas: 2
     resources:
       requests:
