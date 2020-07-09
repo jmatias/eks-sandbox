@@ -13,7 +13,7 @@ spec:
   releaseName: unleash
   helmVersion: v3
   chart:
-    repository: http://chart-museum-chartmuseum.chart-museum
+    repository: http://chartmuseum-chartmuseum.chartmuseum
     name: unleash
     version: 0.5.25
   timeout: 300
@@ -79,7 +79,7 @@ spec:
   releaseName: stolon
   helmVersion: v3
   chart:
-    repository: http://chart-museum-chartmuseum.chart-museum
+    repository: http://chartmuseum-chartmuseum.chartmuseum
     name: stolon
     version: 1.6.3
   timeout: 300
