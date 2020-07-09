@@ -134,10 +134,10 @@ runGreen kubectl apply -f ${SCRIPT_ROOT}/base/releases/external-secrets
 runRed waitForHelmRelease external-secrets external-secrets
 runRed waitForDeployment external-secrets external-secrets-kubernetes-external-secrets
 
-runGreen helm upgrade -i helm-operator-chart-museum fluxcd/helm-operator --set helm.versions=v3 --namespace flux --set workers=40 --set allowNamespace=chart-museum
-runGreen kubectl apply -f ${SCRIPT_ROOT}/base/releases/chart-museum
-runRed waitForHelmRelease chart-museum chart-museum
-runRed waitForDeployment chart-museum chart-museum-chartmuseum
+runGreen helm upgrade -i helm-operator-chartmuseum fluxcd/helm-operator --set helm.versions=v3 --namespace flux --set workers=40 --set allowNamespace=chartmuseum
+runGreen kubectl apply -f ${SCRIPT_ROOT}/base/releases/chartmuseum
+runRed waitForHelmRelease chartmuseum chartmuseum
+runRed waitForDeployment chartmuseum chartmuseum-chartmuseum
 
 helm delete -n flux helm-operator-chart-museum
 helm delete -n flux helm-operator-secrets
