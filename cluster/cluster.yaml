@@ -5,6 +5,7 @@ kind: ClusterConfig
 metadata:
   name: demo
   region: us-east-1
+  version: "1.17"
 
 git:
   repo:
