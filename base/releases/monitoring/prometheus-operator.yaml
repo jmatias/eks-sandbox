@@ -102,10 +102,10 @@ spec:
         resources:
           requests:
             cpu: 256m
-            memory: 1Gi
+            memory: 256Mi
           limits:
             cpu: 512m
-            memory: 2Gi
+            memory: 1Gi
         image:
           repository: quay.io/prometheus/prometheus
           tag: v2.21.0
@@ -201,7 +201,7 @@ spec:
           service.beta.kubernetes.io/aws-load-balancer-ssl-ports: service
           service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
 
-      replicas: 2
+      replicas: 1
       resources:
         requests:
           cpu: 128m
