@@ -11,7 +11,7 @@ spec:
   chart:
     repository: http://chartmuseum-chartmuseum.chartmuseum
     name: ptv
-    version: 0.1.7
+    version: 0.2.0
   timeout: 300
   wait: true
   rollback:
@@ -29,11 +29,16 @@ spec:
     serviceMonitor:
       enabled: false
 
-    headerBackgroundColor: '#1e88e5'
     posgresqlExistingSecret:
-      name: unleash-superuser
+      name: ptv-superuser
       usernameKey: pg_su_username
       passwordKey: pg_su_password
+
+    postgresql:
+      database: ptv2020
+      url: stolon-proxy.ptv
+
+
 
     resources:
       requests:
@@ -41,15 +46,12 @@ spec:
         memory: 32Mi
 
       limits:
-        cpu: 96m
-        memory: 96Mi
+        cpu: 200m
+        memory: 512Mi
 
 
     replicaCount: 1
 
-    postgresql:
-      database: unleash
-      url: stolon-proxy.unleash
 
     ingress:
       enabled: true
