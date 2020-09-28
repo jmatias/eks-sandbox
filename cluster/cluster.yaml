@@ -24,43 +24,43 @@ git:
 availabilityZones: ["us-east-1a","us-east-1b"]
 
 
-nodeGroups:
-  - name: ng1
-    instancesDistribution:
-      instanceTypes: ["m5.large"] # At least one instance type should be specified
-      onDemandBaseCapacity: 0
-      onDemandPercentageAboveBaseCapacity: 0
-    minSize: 2
-    desiredCapacity: 4
-    maxSize: 6
-    privateNetworking: true
-    iam:
-      withAddonPolicies:
-        imageBuilder: true
-        autoScaler: true
-        externalDNS: true
-        certManager: true
-        appMesh: true
-        ebs: true
-        fsx: true
-        efs: true
-        albIngress: true
-        xRay: true
-        cloudWatch: true
-      attachPolicyARNs:
-        - arn:aws:iam::aws:policy/AmazonS3FullAccess
-        - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
-        - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
-        - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
+#nodeGroups:
+#  - name: ng1
+#    instancesDistribution:
+#      instanceTypes: ["m5.large"] # At least one instance type should be specified
+#      onDemandBaseCapacity: 0
+#      onDemandPercentageAboveBaseCapacity: 0
+#    minSize: 2
+#    desiredCapacity: 2
+#    maxSize: 2
+#    privateNetworking: true
+#    iam:
+#      withAddonPolicies:
+#        imageBuilder: true
+#        autoScaler: true
+#        externalDNS: true
+#        certManager: true
+#        appMesh: true
+#        ebs: true
+#        fsx: true
+#        efs: true
+#        albIngress: true
+#        xRay: true
+#        cloudWatch: true
+#      attachPolicyARNs:
+#        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+#        - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+#        - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+#        - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
 
 managedNodeGroups:
-  - name: managed-ng1
+  - name: managed-ng2
     minSize: 2
-    desiredCapacity: 4
-    instanceType: "m5.large"
-    maxSize: 6
+    desiredCapacity: 2
+    instanceType: "t2.medium"
+    maxSize: 2
     privateNetworking: true
-    labels: {role: worker}
+    labels: { role: worker }
     tags:
       nodegroup-role: worker
     iam:
