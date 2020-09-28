@@ -117,7 +117,7 @@ spec:
               resources:
                 requests:
                   storage: 10Gi
-        replicas: 2
+        replicas: 1
         serviceMonitorSelectorNilUsesHelmValues: false
         additionalScrapeConfigs:
 

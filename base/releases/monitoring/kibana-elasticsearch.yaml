@@ -37,7 +37,7 @@ spec:
       resources:
         requests:
           storage: 10Gi
-    replicas: 4
+    replicas: 2
     resources:
       requests:
         cpu: 200m
@@ -101,7 +101,7 @@ spec:
       path: /
       hosts:
       - kibana.javiermatias.net
-    replicas: 2
+    replicas: 1
     resources:
       requests:
         cpu: 200m
