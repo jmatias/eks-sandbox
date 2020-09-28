@@ -11,7 +11,7 @@ spec:
   releaseName: stolon
   helmVersion: v3
   chart:
-    repository: http://chartmuseum-chartmuseum
+    repository: http://chartmuseum-chartmuseum.chartmuseum
     name: stolon
     version: 1.6.3
   timeout: 300
