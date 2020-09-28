@@ -95,19 +95,6 @@ spec:
         retention: 30d
         replicaExternalLabelName: replica
 
-        thanos:
-          version: v0.12.2
-          objectStorageConfig:
-            key: thanos.yaml
-            name: thanos-objstore-config
-          resources:
-            requests:
-              cpu: 128m
-              memory: 128Mi
-            limits:
-              cpu: 256m
-              memory: 256Mi
-
 
 
         logFormat: json
@@ -115,10 +102,10 @@ spec:
         resources:
           requests:
             cpu: 256m
-            memory: 2Gi
+            memory: 1Gi
           limits:
             cpu: 512m
-            memory: 4Gi
+            memory: 2Gi
         image:
           repository: quay.io/prometheus/prometheus
           tag: v2.21.0
