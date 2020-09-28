@@ -30,7 +30,7 @@ spec:
   values:
 
     image: "docker.elastic.co/elasticsearch/elasticsearch"
-    imageTag: "7.8.0"
+    imageTag: "7.9.2"
 
     volumeClaimTemplate:
       accessModes: ["ReadWriteOnce"]
