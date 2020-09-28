@@ -2,20 +2,16 @@
 apiVersion: helm.fluxcd.io/v1
 kind: HelmRelease
 metadata:
-  name: unleash
-  namespace: unleash
-  annotations:
-    fluxcd.io/automated: 'true'
-    filter.fluxcd.io/chart-image: "semver: > 0.1"
-
+  name: ptv
+  namespace: ptv
 
 spec:
-  releaseName: unleash
+  releaseName: ptv
   helmVersion: v3
   chart:
     repository: http://chartmuseum-chartmuseum.chartmuseum
-    name: unleash
-    version: 0.5.25
+    name: ptv
+    version: 0.1.2
   timeout: 300
   wait: true
   rollback:
@@ -26,8 +22,8 @@ spec:
     maxRetries: 0
   values:
     image:
-      repository: jmatiastw/unleash
-      tag: 0.2.14
+      repository: 745892955196.dkr.ecr.us-east-1.amazonaws.com/ptv
+      tag: 0.1.0
       imagePullPolicy: IfNotPresent
 
     serviceMonitor:
@@ -59,7 +55,7 @@ spec:
       enabled: true
       annotations:
         kubernetes.io/ingress.class: nginx
-      host: unleash.javiermatias.net
+      host: ptv.javiermatias.net
       path: /
 
 
