@@ -47,7 +47,7 @@ spec:
       annotations:
         kubernetes.io/ingress.class: nginx
       hosts:
-        - name: charts.ekssandbox-tw.com
+        - name: charts.javiermatias.net
           path: /
 
     service:
@@ -68,7 +68,7 @@ spec:
         # storage backend, can be one of: local, alibaba, amazon, google, microsoft, oracle
         STORAGE: amazon
         # s3 bucket to store charts for amazon storage backend
-        STORAGE_AMAZON_BUCKET: tw.chartmuseum-backend
+        STORAGE_AMAZON_BUCKET: javiermatias.chartmuseum-backend
         # prefix to store charts for amazon storage backend
         STORAGE_AMAZON_PREFIX:
         # region of s3 bucket to store charts

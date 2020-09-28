@@ -129,7 +129,6 @@ spec:
               #   readOnly: true
           args:
             # In what namespace Tiller can be found.
-            - --tiller-namespace=kube-system
             - --git-poll-interval=3m
             - --charts-sync-interval=3m
             - --workers=40
