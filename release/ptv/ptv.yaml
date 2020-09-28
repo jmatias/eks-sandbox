@@ -11,7 +11,7 @@ spec:
   chart:
     repository: http://chartmuseum-chartmuseum.chartmuseum
     name: ptv
-    version: 0.1.3
+    version: 0.1.7
   timeout: 300
   wait: true
   rollback:
@@ -23,7 +23,7 @@ spec:
   values:
     image:
       repository: 745892955196.dkr.ecr.us-east-1.amazonaws.com/ptv
-      tag: 0.1.0
+      tag: 0.1.1
       imagePullPolicy: IfNotPresent
 
     serviceMonitor:
