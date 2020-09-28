@@ -29,7 +29,7 @@ spec:
     image:
       registry: quay.io
       repository: thanos/thanos
-      tag: v0.13.0
+      tag: v0.15.0
       pullPolicy: IfNotPresent
 
     clusterDomain: cluster.local
@@ -68,8 +68,8 @@ spec:
         enabled: true
 
       stores:
-        - prom-operator-prometheus-o-prometheus-0:10901
-        - prom-operator-prometheus-o-prometheus-1:10901
+      - prom-operator-prometheus-o-prometheus-0:10901
+      - prom-operator-prometheus-o-prometheus-1:10901
 
       extraFlags:
         log.format: json
@@ -512,7 +512,7 @@ spec:
         ## Persistent Volume Access Mode
         ##
         accessModes:
-          - ReadWriteOnce
+        - ReadWriteOnce
         ## Persistent Volume Claim size
         ##
         size: 8Gi
@@ -679,7 +679,7 @@ spec:
         ## Persistent Volume Access Mode
         ##
         accessModes:
-          - ReadWriteOnce
+        - ReadWriteOnce
         ## Persistent Volume Claim size
         ##
         size: 8Gi
@@ -720,7 +720,7 @@ spec:
       ## Alermanager URLs array
       ##
       alertmanagers:
-        - https://alertmanager.ekssandbox-tw.com
+      - https://alertmanager.ekssandbox-tw.com
 
       ## The default evaluation interval to use
       ##
@@ -882,7 +882,7 @@ spec:
         ## Persistent Volume Access Mode
         ##
         accessModes:
-          - ReadWriteOnce
+        - ReadWriteOnce
         ## Persistent Volume Claim size
         ##
         size: 8Gi
