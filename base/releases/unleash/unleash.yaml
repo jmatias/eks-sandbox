@@ -13,7 +13,7 @@ spec:
   releaseName: unleash
   helmVersion: v3
   chart:
-    repository: https://jmatias.github.io/unleash-deployment
+    repository: https://charts.javiermatias.net
     name: unleash
     version: 0.5.25
   timeout: 300

@@ -11,7 +11,7 @@ spec:
   releaseName: stolon
   helmVersion: v3
   chart:
-    repository: https://jmatias.github.io/unleash-deployment
+    repository: https://charts.javiermatias.net
     name: stolon
     version: 1.6.3
   timeout: 300
