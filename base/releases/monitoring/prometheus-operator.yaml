@@ -101,7 +101,7 @@ spec:
         logLevel: info
         resources:
           requests:
-            cpu: 256m
+            cpu: 50m
             memory: 256Mi
           limits:
             cpu: 512m
@@ -204,7 +204,7 @@ spec:
       replicas: 1
       resources:
         requests:
-          cpu: 128m
+          cpu: 50m
           memory: 96Mi
 
         limits:

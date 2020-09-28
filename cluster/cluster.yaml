@@ -53,6 +53,34 @@ nodeGroups:
         - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
         - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
 
+  - name: ng2
+    instancesDistribution:
+      instanceTypes: [ "t2.medium" ] # At least one instance type should be specified
+      onDemandBaseCapacity: 0
+      onDemandPercentageAboveBaseCapacity: 0
+    minSize: 3
+    desiredCapacity: 3
+    maxSize: 3
+    privateNetworking: true
+    iam:
+      withAddonPolicies:
+        imageBuilder: true
+        autoScaler: true
+        externalDNS: true
+        certManager: true
+        appMesh: true
+        ebs: true
+        fsx: true
+        efs: true
+        albIngress: true
+        xRay: true
+        cloudWatch: true
+      attachPolicyARNs:
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+        - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+        - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+        - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
+        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
 iam:
   withOIDC: true
   serviceAccounts:
