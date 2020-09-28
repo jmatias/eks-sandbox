@@ -24,9 +24,9 @@ availabilityZones: [ "us-east-1a","us-east-1b" ]
 
 
 nodeGroups:
-  - name: ng2
+  - name: ng1
     instancesDistribution:
-      instanceTypes: [ "t2.medium" ] # At least one instance type should be specified
+      instanceTypes: [ "t2.large" ] # At least one instance type should be specified
       onDemandBaseCapacity: 0
       onDemandPercentageAboveBaseCapacity: 0
     minSize: 3

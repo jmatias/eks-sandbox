@@ -2,6 +2,12 @@
 
 SCRIPT_ROOT=$(dirname "${BASH_SOURCE}")/..
 
+if [[ -z "${GITHUB_TOKEN}" ]]; then
+  echo 'GITHUB_TOKEN environment variable must be set.'
+  exit 1
+fi
+
+
 $SCRIPT_ROOT/hack/install-deps.sh
 
 grep '<cluster-name-placeholder>' $SCRIPT_ROOT/cluster/cluster.yaml > /dev/null 2>&1

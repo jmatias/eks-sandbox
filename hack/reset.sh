@@ -3,9 +3,10 @@
 SCRIPT_ROOT=$(dirname "${BASH_SOURCE}")/..
 
 if [[ -z "${GITHUB_TOKEN}" ]]; then
-  echo nope!
+  echo 'GITHUB_TOKEN environment variable must be set.'
   exit 1
 fi
+
 
 
 set +e

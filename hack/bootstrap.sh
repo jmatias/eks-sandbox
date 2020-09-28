@@ -2,6 +2,12 @@
 
 SCRIPT_ROOT=$(dirname "${BASH_SOURCE}")/..
 
+if [[ -z "${GITHUB_TOKEN}" ]]; then
+  echo 'GITHUB_TOKEN environment variable must be set.'
+  exit 1
+fi
+
+
 $SCRIPT_ROOT/hack/configure.sh
 
 
@@ -153,6 +159,8 @@ runGray kubectl apply -f ${SCRIPT_ROOT}/base/releases/chartmuseum
 runRed waitForHelmRelease chartmuseum chartmuseum
 runRed waitForDeployment chartmuseum chartmuseum-chartmuseum
 
+sleep 15
+
 helm delete -n flux helm-operator-chartmuseum
 helm delete -n flux helm-operator-secrets
 helm delete -n flux helm-operator-ingress
@@ -160,5 +168,5 @@ helm delete -n flux helm-operator-ingress
 kubectl get hr -A
 
 kubectl get hr -A | grep -vi NAMESPACE | grep -E '(failed)' | awk '{printf "kubectl delete hr -n %s %s\n",$1,$2}' | xargs -I{} -t bash -c '{}'
-runRed restartDeployment flux helm-operator-private
+runGray kubectl apply -f ${SCRIPT_ROOT}/base/releases/flux
 kubectl get hr -A
