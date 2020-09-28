@@ -66,7 +66,7 @@ spec:
         # There are no ":latest" images for flux. Find the most recent
         # release or image version at https://hub.docker.com/r/fluxcd/flux/tags
         # and replace the tag here.
-        image: docker.io/fluxcd/flux:1.20.2
+        image: docker.io/fluxcd/flux:1.19.0
         imagePullPolicy: IfNotPresent
         resources:
           requests:
@@ -143,7 +143,7 @@ spec:
         # HTTP basic auth credentials can be supplied using environment variables:
         # https://$(GIT_AUTHUSER):$(GIT_AUTHKEY)@github.com/user/repository.git
         - --git-url=git@github.com:jmatias/eks-sandbox.git
-        - --git-branch=main
+        - --git-branch=master
         # Include this if you want to restrict the manifests considered by flux
         # to those under the following relative paths in the git repository
         # - --git-path=subdir1,subdir2
