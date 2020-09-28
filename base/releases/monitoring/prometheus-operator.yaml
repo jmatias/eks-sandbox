@@ -229,18 +229,6 @@ spec:
         url: https://prometheus.javiermatias.net
         version: 1
         isDefault: true
-      - name: Thanos
-        access: proxy
-        editable: false
-        jsonData:
-          timeInterval: '10s'
-          custom_query_parameters: dedup=true&partial_response=true
-          customQueryParameters: dedup=true&partial_response=true
-        orgId: 1
-        type: prometheus
-        url: https://thanos.javiermatias.net
-        version: 1
-        isDefault: false
 
 
     nodeExporter:
