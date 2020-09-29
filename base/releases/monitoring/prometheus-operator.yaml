@@ -17,9 +17,9 @@ metadata:
 spec:
   releaseName: prom-operator
   chart:
-    repository: https://kubernetes-charts.storage.googleapis.com
-    name: prometheus-operator
-    version: 9.3.2
+    repository: https://prometheus-community.github.io/helm-charts
+    name: kube-prometheus-stack
+    version: 9.4.4
   rollback:
     enable: true
     retry: true
