@@ -5,6 +5,8 @@ metadata:
   name: ptv
   namespace: ptv
 
+  annotations:
+    fluxcd.io/automated: 'true'
 spec:
   releaseName: ptv
   helmVersion: v3
