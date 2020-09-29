@@ -11,7 +11,7 @@ spec:
   chart:
     repository: http://chartmuseum-chartmuseum.chartmuseum
     name: ptv
-    version: 0.2.5
+    version: 0.2.6
   timeout: 300
   wait: true
   rollback:
