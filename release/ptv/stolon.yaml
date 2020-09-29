@@ -28,9 +28,6 @@ spec:
       tag: v0.16.0-pg10
       pullPolicy: IfNotPresent
 
-    service:
-      type: LoadBalancer
-
     persistence:
       enabled: true
       storageClassName: ""
@@ -68,6 +65,8 @@ spec:
 
     proxy:
       replicaCount: 2
+      service:
+        type: LoadBalancer
 
       resources:
         requests:
