@@ -25,7 +25,7 @@ spec:
   values:
     image:
       repository: 745892955196.dkr.ecr.us-east-1.amazonaws.com/ptv
-      tag: 0.2.2
+      tag: 0.2.3
       imagePullPolicy: IfNotPresent
 
     serviceMonitor:
