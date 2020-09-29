@@ -51,12 +51,10 @@ spec:
           - type: container
             paths:
               - /var/lib/docker/containers/*/*.log
-              - /usr/local/tomcat/logs/*
           - type: log
             paths:
               - /usr/log/messages
               - /usr/log/*.log
-              - /usr/local/tomcat/logs/*
             fields:
                 type: syslog
 
