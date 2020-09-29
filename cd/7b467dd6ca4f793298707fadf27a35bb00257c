@@ -1,0 +1,1 @@
+{"jobID":"5923ba38-b715-ba07-05bc-4272abb8aa57","spec":{"type":"policy","cause":{"Message":"","User":"Javier Matias \u003cjmatias@thoughtworks.com\u003e"},"spec":{"ptv:helmrelease/ptv":{"add":{"automated":"true"},"remove":{}}}},"result":null}
