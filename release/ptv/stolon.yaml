@@ -28,6 +28,8 @@ spec:
       tag: v0.16.0-pg10
       pullPolicy: IfNotPresent
 
+    service:
+      type: LoadBalancer
 
     persistence:
       enabled: true
