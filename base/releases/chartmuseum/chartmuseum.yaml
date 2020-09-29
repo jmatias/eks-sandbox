@@ -6,6 +6,7 @@ metadata:
   namespace: chartmuseum
   annotations:
     fluxcd.io/automated: 'true'
+    filter.fluxcd.io/chart-image: "semver: >= 0.12"
 spec:
   helmVersion: v3
   releaseName: chartmuseum
