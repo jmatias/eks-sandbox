@@ -50,7 +50,7 @@ spec:
 
 
     sentinel:
-      replicaCount: 2
+      replicaCount: 1
 
       resources:
         requests:
@@ -65,7 +65,7 @@ spec:
         maxUnavailable: 1
 
     proxy:
-      replicaCount: 2
+      replicaCount: 1
 
       resources:
         requests:
@@ -82,7 +82,7 @@ spec:
 
     keeper:
 
-      replicaCount: 2
+      replicaCount: 1
 
       resources:
         requests:

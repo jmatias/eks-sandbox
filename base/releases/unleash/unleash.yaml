@@ -49,7 +49,7 @@ spec:
         memory: 96Mi
 
 
-    replicaCount: 3
+    replicaCount: 1
 
     postgresql:
       database: unleash
