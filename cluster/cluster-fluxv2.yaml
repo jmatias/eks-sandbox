@@ -1,0 +1,101 @@
+---
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: datamesh-demo
+  region: us-east-1
+
+
+gitops:
+  flux:
+    gitProvider: github      # required. options are github, gitlab or git
+    flags: # required. arbitrary map[string]string for all flux args.
+      # these args are not controlled by eksctl. see https://fluxcd.io/docs/get-started/ for all available flags
+      owner: "jlmatias"
+      repository: "eks-sandbox"
+      private: "false"
+      branch: "main"
+      namespace: "flux-system"
+      path: "clusters/datamesh"
+
+#git:
+#  repo:
+#    url: git@github.com:jmatias/eks-sandbox.git
+#    email: jmatias@thoughtworks.com
+#    branch: main
+#    fluxPath: "flux/"
+#  operator:
+#    namespace: "flux"
+#    withHelm: false
+#  bootstrapProfile:
+#    source: git@github.com:jmatias/eks-quick-start.git
+#    revision: master
+
+
+availabilityZones: [ "us-east-1a","us-east-1b" ]
+
+
+nodeGroups:
+
+  - name: ng2
+    instancesDistribution:
+      instanceTypes: [ "t2.medium" ] # At least one instance type should be specified
+      onDemandBaseCapacity: 0
+      onDemandPercentageAboveBaseCapacity: 0
+    minSize: 3
+    desiredCapacity: 3
+    maxSize: 3
+    privateNetworking: true
+    iam:
+      withAddonPolicies:
+        imageBuilder: true
+        autoScaler: true
+        externalDNS: true
+        certManager: true
+        appMesh: true
+        ebs: true
+        fsx: true
+        efs: true
+        albIngress: true
+        xRay: true
+        cloudWatch: true
+      attachPolicyARNs:
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+        - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+        - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+        - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
+        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+iam:
+  withOIDC: true
+  serviceAccounts:
+    - metadata:
+        name: external-secrets-sa
+        namespace: external-secrets
+      attachPolicyARNs:
+        - arn:aws:iam::aws:policy/SecretsManagerReadWrite
+
+    - metadata:
+        name: prometheus-sa
+        namespace: monitoring
+      attachPolicyARNs:
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+
+    - metadata:
+        name: eksctl-sa
+        namespace: monitoring
+      attachPolicyARNs:
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+
+    - metadata:
+        name: eksctl-sa
+        namespace: kube-system
+      attachPolicyARNs:
+        - arn:aws:iam::aws:policy/SecretsManagerReadWrite
+
+    - metadata:
+        name: eksctl-sa
+        namespace: chartmuseum
+      attachPolicyARNs:
+        - arn:aws:iam::aws:policy/SecretsManagerReadWrite
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
