@@ -110,11 +110,11 @@ function createOrUpdateCluster() {
     eksctl create cluster --config-file ${SCRIPT_ROOT}/cluster/cluster.yaml
   else
 
-    eksctl utils write-kubeconfig --cluster $(getClusterName)
+#    eksctl utils write-kubeconfig --cluster $(getClusterName)
     eksctl create ng --config-file ${SCRIPT_ROOT}/cluster/cluster.yaml
     eksctl utils associate-iam-oidc-provider --config-file ${SCRIPT_ROOT}/cluster/cluster.yaml --approve
     eksctl create iamserviceaccount --config-file ${SCRIPT_ROOT}/cluster/cluster.yaml --approve --override-existing-serviceaccounts
-    eksctl enable profile --config-file ${SCRIPT_ROOT}/cluster/cluster.yaml
+#    eksctl enable profile --config-file ${SCRIPT_ROOT}/cluster/cluster.yaml
     eksctl enable repo --config-file ${SCRIPT_ROOT}/cluster/cluster.yaml
   fi
 

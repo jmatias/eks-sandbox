@@ -1,0 +1,25 @@
+<component name="ProjectCodeStyleConfiguration">
+  <code_scheme name="Project" version="173">
+    <option name="OTHER_INDENT_OPTIONS">
+      <value>
+        <option name="INDENT_SIZE" value="2" />
+        <option name="TAB_SIZE" value="2" />
+      </value>
+    </option>
+    <option name="SOFT_MARGINS" value="80,120" />
+    <bashpro>
+      <option name="USE_GOOGLE_CODE_STYLE" value="true" />
+    </bashpro>
+    <codeStyleSettings language="JSON">
+      <indentOptions>
+        <option name="INDENT_SIZE" value="4" />
+      </indentOptions>
+    </codeStyleSettings>
+    <codeStyleSettings language="Python">
+      <option name="SOFT_MARGINS" value="80,120" />
+    </codeStyleSettings>
+    <codeStyleSettings language="yaml">
+      <option name="SPACE_WITHIN_BRACKETS" value="false" />
+    </codeStyleSettings>
+  </code_scheme>
+</component>
