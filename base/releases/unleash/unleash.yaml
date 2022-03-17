@@ -27,7 +27,7 @@ spec:
   values:
     image:
       repository: jmatiastw/unleash
-      tag: 0.2.14
+      tag: 3.7.0
       imagePullPolicy: IfNotPresent
 
     serviceMonitor:
