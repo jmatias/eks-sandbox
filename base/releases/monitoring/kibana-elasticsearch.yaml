@@ -85,7 +85,7 @@ spec:
   values:
 
     image: "docker.elastic.co/kibana/kibana"
-    imageTag: "7.9.2"
+    imageTag: "7.17.1"
 
     ingress:
       enabled: true
