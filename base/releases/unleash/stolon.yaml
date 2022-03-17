@@ -11,7 +11,7 @@ spec:
   releaseName: stolon
   helmVersion: v3
   chart:
-    repository: https://jmatias.github.io/unleash-deployment
+    repository: http://chartmuseum-chartmuseum.chartmuseum
     name: stolon
     version: 1.6.3
   timeout: 300
@@ -50,7 +50,7 @@ spec:
 
 
     sentinel:
-      replicaCount: 3
+      replicaCount: 1
 
       resources:
         requests:
@@ -65,7 +65,7 @@ spec:
         maxUnavailable: 1
 
     proxy:
-      replicaCount: 3
+      replicaCount: 1
 
       resources:
         requests:
@@ -82,7 +82,7 @@ spec:
 
     keeper:
 
-      replicaCount: 3
+      replicaCount: 1
 
       resources:
         requests:

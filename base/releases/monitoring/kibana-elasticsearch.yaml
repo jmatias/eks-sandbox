@@ -37,13 +37,13 @@ spec:
       resources:
         requests:
           storage: 10Gi
-    replicas: 4
+    replicas: 2
     resources:
       requests:
-        cpu: 200m
-        memory: 2000Mi
+        cpu: 50m
+        memory: 1000Mi
       limits:
-        cpu: 600m
+        cpu: 300m
         memory: 3500Mi
     ingress:
       enabled: true
@@ -56,7 +56,7 @@ spec:
         nginx.ingress.kubernetes.io/affinity-mode: persistent
       path: /
       hosts:
-      - elasticsearch.ekssandbox-tw.com
+      - elasticsearch.javiermatias.net
 ---
 apiVersion: helm.fluxcd.io/v1
 kind: HelmRelease
@@ -100,11 +100,11 @@ spec:
         service.beta.kubernetes.io/aws-load-balancer-ssl-ports: https
       path: /
       hosts:
-      - kibana.ekssandbox-tw.com
-    replicas: 2
+      - kibana.javiermatias.net
+    replicas: 1
     resources:
       requests:
-        cpu: 200m
+        cpu: 50m
         memory: 1000Mi
       limits:
         cpu: 600m

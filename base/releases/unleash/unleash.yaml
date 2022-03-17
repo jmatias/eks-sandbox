@@ -13,7 +13,7 @@ spec:
   releaseName: unleash
   helmVersion: v3
   chart:
-    repository: https://jmatias.github.io/unleash-deployment
+    repository: http://chartmuseum-chartmuseum.chartmuseum
     name: unleash
     version: 0.5.25
   timeout: 300
@@ -49,7 +49,7 @@ spec:
         memory: 96Mi
 
 
-    replicaCount: 3
+    replicaCount: 1
 
     postgresql:
       database: unleash
@@ -59,7 +59,7 @@ spec:
       enabled: true
       annotations:
         kubernetes.io/ingress.class: nginx
-      host: unleash.ekssandbox-tw.com
+      host: unleash.javiermatias.net
       path: /
 
 

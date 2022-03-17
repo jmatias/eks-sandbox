@@ -308,7 +308,7 @@ metadata:
     fluxcd.io/locked_user: Javier Matias <jmatias@thoughtworks.com>
     fluxcd.io/locked: 'true'
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: tekton-dashboard
