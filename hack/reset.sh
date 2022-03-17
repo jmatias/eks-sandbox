@@ -10,15 +10,15 @@ fi
 
 
 set +e
-kubectl get  deployment -n kube-system vpa-updater > /dev/null 2>&1
-retVal=$?
-if [ $retVal -eq 0 ]; then
-  git clone --depth 1 git@github.com:kubernetes/autoscaler.git
-  cd autoscaler/vertical-pod-autoscaler/hack || exit
-  ./vpa-down.sh
-  cd ../../../
-  rm -rf autoscaler
-fi
+#kubectl get  deployment -n kube-system vpa-updater > /dev/null 2>&1
+#retVal=$?
+#if [ $retVal -eq 0 ]; then
+#  git clone --depth 1 --branch vertical-pod-autoscaler-0.8.0  git@github.com:kubernetes/autoscaler.git
+#  cd autoscaler/vertical-pod-autoscaler/hack || exit
+#  ./vpa-down.sh
+#  cd ../../../
+#  rm -rf autoscaler
+#fi
 
 
 helm list -A -a  | grep -vi NAMESPACE  |  awk '{printf "helm delete -n %s %s\n",$2,$1}' | xargs -I{} bash -c '{}'
@@ -35,5 +35,3 @@ kubectl delete -f ${SCRIPT_ROOT}/base/namespaces
 
 
 eksctl delete iamserviceaccount --config-file ${SCRIPT_ROOT}/cluster/cluster.yaml --approve
-
-

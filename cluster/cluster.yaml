@@ -3,21 +3,22 @@ apiVersion: eksctl.io/v1alpha5
 kind: ClusterConfig
 
 metadata:
-  name: staging
+  name: datamesh
   region: us-east-1
+  version: '1.18'
 
 git:
   repo:
     url: git@github.com:jmatias/eks-sandbox.git
-    email: javier.l.matias@gmail.com
-    branch: master
+    email: jmatias@thoughtworks.com
+    branch: main
     fluxPath: "flux/"
   operator:
     namespace: "flux"
     withHelm: false
   bootstrapProfile:
     source: git@github.com:jmatias/eks-quick-start.git
-    revision: master
+    revision: main
 
 
 availabilityZones: [ "us-east-1a","us-east-1b" ]
@@ -91,4 +92,4 @@ iam:
         name: external-dns-sa
         namespace: external-dns
       attachPolicyARNs:
-        - arn:aws:iam::745892955196:policy/ExternalDns
+        - arn:aws:iam::786226178105:policy/ExternalDns

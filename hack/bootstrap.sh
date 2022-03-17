@@ -59,9 +59,9 @@ function waitForHelmRelease() {
 }
 
 function fetchRepoUpdates() {
-  git branch --set-upstream-to=origin/master
+  git branch --set-upstream-to=origin/main
   git fetch
-  git rebase origin/master --autostash
+  git rebase origin/main --autostash
 }
 
 function runGreen {
@@ -93,7 +93,7 @@ function installVerticalPodAutoscaler() {
   kubectl get deployment -n kube-system vpa-updater >/dev/null 2>&1
   retVal=$?
   if [ $retVal -ne 0 ]; then
-    git clone --depth 1 git@github.com:kubernetes/autoscaler.git
+    git clone --depth 1 --branch vertical-pod-autoscaler-0.8.0 git@github.com:kubernetes/autoscaler.git
     cd autoscaler/vertical-pod-autoscaler/hack
     ./vpa-up.sh
     cd ../../../
@@ -102,6 +102,10 @@ function installVerticalPodAutoscaler() {
 }
 
 function createOrUpdateCluster() {
+
+  printf "${red}"
+  eksctl get cluster $(getClusterName)
+  printf "${coloroff}"
 
   eksctl get cluster $(getClusterName) >/dev/null 2>&1
   retVal=$?
@@ -139,7 +143,7 @@ createOrUpdateCluster
 
 fetchRepoUpdates
 
-installVerticalPodAutoscaler
+#installVerticalPodAutoscaler
 
 runGray kubectl apply -f ${SCRIPT_ROOT}/base/namespaces
 

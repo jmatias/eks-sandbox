@@ -11,7 +11,7 @@ spec:
   helmVersion: v3
   releaseName: chartmuseum
   chart:
-    repository: https://kubernetes-charts.storage.googleapis.com
+    repository: https://chartmuseum.github.io/charts
     name: chartmuseum
     version: 2.13.0
   rollback:

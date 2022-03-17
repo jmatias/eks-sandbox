@@ -1,0 +1,4 @@
+fileignoreconfig:
+- filename: schema/schema.json
+  checksum: 8f35aa89e1193724df10cbbe4812ba1ae98caaf314abbde61ebd1b6faae0b3fd
+version: "1.0"
