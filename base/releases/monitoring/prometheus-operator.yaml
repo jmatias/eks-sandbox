@@ -108,7 +108,7 @@ spec:
             memory: 1Gi
         image:
           repository: quay.io/prometheus/prometheus
-          tag: v2.21.0
+          tag: v2.34.0
         enableAdminAPI: true
         storageSpec:
           volumeClaimTemplate:
