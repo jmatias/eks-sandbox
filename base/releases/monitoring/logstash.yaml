@@ -38,7 +38,7 @@ spec:
         memory: 600Mi
 
     image: "docker.elastic.co/logstash/logstash"
-    imageTag: "7.17.1"
+    imageTag: "7.9.2"
 
     persistence:
       enabled: true
