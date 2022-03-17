@@ -252,7 +252,7 @@ spec:
     kube-state-metrics:
       image:
         repository: quay.io/coreos/kube-state-metrics
-        tag: v1.9.7
+        tag: v1.9.8
         pullPolicy: IfNotPresent
       resources:
         requests:
